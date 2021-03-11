@@ -1,6 +1,8 @@
 # TODO
 
-- [ ] I noticed that the authors 
+- [ ] 5. R1: Setup DGP with time fixed effects.
+- [ ] 5. R3: Simulation results n = 30. Might need to focus on SAW-estimator and compare quantity defined in Thm 1.
+- [ ] 6. R3: DGP with endogeneous regressors, maybe delete DGP2 or DGP3 (Dominik favors deleting DGP3). Need to check if MATLAB codes can handle this case and if yes udpate code there to.
 
 
 ## Simulation Code
