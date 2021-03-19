@@ -5,26 +5,33 @@
 - [ ] 6. R3: DGP with endogeneous regressors, maybe delete DGP2 or DGP3 (Dominik favors deleting DGP3). Need to check if MATLAB codes can handle this case and if yes udpate code there to.
 
 
-## Simulation Code
-
-#### A Wavelet Method for Panel Models with Jump Discontinuities in the Parameters
-
-### Introduction
+## Introduction
 
 Here we provide computer code which can be used to reproduce the simulation results in
 the paper **A Wavelet Method for Panel Models with Jump Discontinuities in the Parameters**
 _(Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.)_.
 
 
-The repository is structured as follows. In the folder ``src`` you will find code
-that can be executed to produce simulation results and tables that are used in the
-paper. The data which is used in the paper is also stored in the folder ``bld``. Instead
-of the common approach to leave the ``bld`` folder empty such that everyone who wishes
-to compare results has to run the codes themselves, we fill this folder since some codes
-are computationally expensive to run and rely on proprietary software (MATLAB).
+## How to Reproduce
 
+Reproduction of all results is a bit tricky. This is due to the fact that the comparison
+method is written in MATLAB and hence for a complete reproduction one needs to run the
+MATLAB files stored in ``src/matlab``; more on that below. Given that the MATLAB
+simulation results have been produced the rest is easy. You simply need to source the
+file ``src/main.R``. It will run the simulations of our method and produce the overall
+tex file which we used in the paper. The results can then be found in ``bld/tex`` and
+``bld/R``.
 
-The implementation of the method presented in the paper is hosted here: [sawr](https://github.com/timmens/sawr)
+**Note:**
+Notice that the ``bld`` we provide in this repository is not empty, which is usually
+the case in reproduction repositiories. We do this since the runtime of the MATLAB codes
+is long and as MATLAB is proprietary not everyone has access to it. For a fresh run of
+the simulation of our method remove the folder ``bld/R`` and ``bld/tex`` then source
+``src/main.R``.
+
+## Our Method 
+
+The implementation of out method is hosted here: [sawr](https://github.com/timmens/sawr)
 and can be installed into R using
 
 ```R
@@ -32,5 +39,7 @@ library("devtools")
 install_github("timmens/sawr")
 ```
 
+## Contact & Contribution
 
-### Simulation
+If you find bugs in our codes feel free to open an issue / pull-request or simply
+contact me. See [here](https://github.com/timmens).

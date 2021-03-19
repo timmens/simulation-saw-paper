@@ -1,4 +1,4 @@
-# dgp 2 to 6
+# dgp 2 to 5
 
 # devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
 library("sawr")
@@ -13,7 +13,7 @@ source("src/R/dgp.R")  # exports function DGP
 jumps <- c(1, 2, 3)  # S
 sample_sizes <- c(30, 60, 120, 300)  # N
 time_periods <- 2 ^ c(5, 6, 7) + 1  # T
-dgps <- c(2, 3, 4, 5, 6)
+dgps <- c(2, 3, 4, 5)
 
 n_sims <- 8  # 1000
 if (n_sims != 1000) warning("Check n_sims.")
@@ -116,7 +116,7 @@ for (dgp in dgps) {
 parallel::stopCluster(cl)
 
 # save results to data frame then to csv file
-params                    <- list(N = sample_sizes, S = jumps, T = time_periods, DGP = dgps)
+params                    <- list(N = sample_sizes, S = jumps, T = time_periods, dgp = dgps)
 result_df                 <- expand.grid(params)[c(4, 3, 2, 1)]
 
 result_df$s_est_mean      <- s_est_mean
@@ -132,7 +132,7 @@ result_df$s_0             <- s_0
 # write to file
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)
 output_dir = file.path("bld", "R")
-file_name = file.path(output_dir, paste0("simulation_dgp2_to_dgp6_", date_time_str, ".csv"))
+file_name = file.path(output_dir, paste0("simulation_dgp2_to_dgp5_", date_time_str, ".csv"))
 write_csv(result_df, file_name)
 
 # write additional info
@@ -141,6 +141,6 @@ additional_info <- c(
   paste0("seed = ", seed), 
   paste0("ellapsed time = ", Sys.time() - starting_time)
 )
-file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp6.txt"))
+file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp5.txt"))
 writeLines(additional_info, file_connection)
 close(file_connection)

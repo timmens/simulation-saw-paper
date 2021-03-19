@@ -126,15 +126,7 @@ dgp4 <- function(T, N, beta) {
 
 
 dgp5 <- function(T, N, beta) {
-  # dgp5 (no-jumps; equals to dgp4 but without jumps)
-  
-  .beta <- rep(2, T)
-  dgp4(T, N, .beta)
-}
-
-
-dgp6 <- function(T, N, beta) {
-  # dgp6 (heterosc. in the time- and cross-section and time-fixed effect)
+  # dgp5 (heterosc. in the time- and cross-section and time-fixed effect)
   
   gamma <- runif(N * T, 1, 2)
   e     <- rnorm(N * T)
@@ -151,6 +143,14 @@ dgp6 <- function(T, N, beta) {
                                                  # correctly added (theta)
   
   list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T))
+}
+
+
+dgp6 <- function(T, N, beta) {
+  # dgp6 (no-jumps; equals dgp4 but without jumps)
+  
+  .beta <- rep(2, T)
+  dgp4(T, N, .beta)
 }
 
 
