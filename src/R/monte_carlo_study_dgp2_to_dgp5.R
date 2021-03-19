@@ -9,14 +9,17 @@ library("doParallel")
 source("src/R/dgp.R")  # exports function DGP
 
 
-# config parameters
+# read config parameters from file
+config <- yaml.load_file(file.path("src", "config.yaml"))
+test_run <- config$test
+sample_sizes <- config$sample_sizes
+time_periods <- config$time_periods
+n_sims <- config$n_sims
+if (n_sims != 1000) warning("Check n_sims.")
+
 jumps <- c(1, 2, 3)  # S
-sample_sizes <- c(30, 60, 120, 300)  # N
-time_periods <- 2 ^ c(5, 6, 7) + 1  # T
 dgps <- c(2, 3, 4, 5)
 
-n_sims <- 8  # 1000
-if (n_sims != 1000) warning("Check n_sims.")
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps) * length(dgps)
 
@@ -132,7 +135,11 @@ result_df$s_0             <- s_0
 # write to file
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)
 output_dir = file.path("bld", "R")
-file_name = file.path(output_dir, paste0("simulation_dgp2_to_dgp5_", date_time_str, ".csv"))
+if (test_run) {
+  file_name = file.path(output_dir, paste0("simulation_dgp2-to-dgp6_", date_time_str, ".csv"))
+} else{
+  file_name = file.path(output_dir, "simulation_dgp2-to-dgp6.csv")
+}
 write_csv(result_df, file_name)
 
 # write additional info

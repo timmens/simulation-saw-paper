@@ -1,6 +1,7 @@
 # dgp 1 (multiple regressors)
 
 # devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
+library("yaml")
 library("sawr")
 library("readr")
 library("foreach")
@@ -8,11 +9,14 @@ library("doParallel")
 
 source("src/R/dgp.R")  # exports function dgp1
 
-sample_sizes <- c(30, 60, 120, 300)  # N
-time_periods <- 2 ^ c(5, 6, 7) + 1  # T
-
-n_sims  <- 8  # 1000
+# read config parameters from file
+config <- yaml.load_file(file.path("src", "config.yaml"))
+test_run <- config$test
+sample_sizes <- config$sample_sizes
+time_periods <- config$time_periods
+n_sims <- config$n_sims
 if (n_sims != 1000) warning("Check n_sims.")
+
 n_iter <- length(sample_sizes) * length(time_periods)
 
 s_est1_mean <- numeric(n_iter)
@@ -144,9 +148,14 @@ result_df$s_01        <- s_01
 result_df$s_02        <- s_02
 
 # write to file
+
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)
 output_dir = file.path("bld", "R")
-file_name = file.path(output_dir, paste0("simulation_dgp1_", date_time_str, ".csv"))
+if (test_run) {
+  file_name = file.path(output_dir, paste0("simulation_dgp1_", date_time_str, ".csv"))
+} else{
+  file_name = file.path(output_dir, "simulation_dgp1.csv")
+}
 write_csv(result_df, file_name)
 
 # write additional info

@@ -35,6 +35,14 @@ simulation of our method remove the folder ``bld/R`` and ``bld/tex`` then source
 **Run the MATLAB files:**
 Not implemented yet.
 
+To run the matlab code you first need to download the software corresponding to the
+method presented in [Qian and Su, 2016b](https://www.sciencedirect.com/science/article/abs/pii/S0304407615002377?via%3Dihub).
+The software is available on the authors [website](http://jhqian.org/software/index.htm)
+(download structb_panel.rar and unpack). The files need to be stored in ``src/matlab/matlab_src``.
+Then in your MATLAB session you need to add the paths ``src/matlab/matlab_src`` and
+``src/matlab/simulation_src``. At last simply run the files ``monte_carlo_study_dgp*``.
+This runs the simulation and writes the results to ``bld/matlab``.
+
 ## Our Method 
 
 The implementation of out method is hosted here: [sawr](https://github.com/timmens/sawr)

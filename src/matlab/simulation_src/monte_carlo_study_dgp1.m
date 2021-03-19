@@ -4,7 +4,7 @@ tic;
         
 N    = [25, 50, 100, 200];
 T    = 2 .^ [5, 6, 7] + 1;
-nSim = 500;
+nSim = 4; %500;
 nN   = size(N, 2);
 nT   = size(T, 2);
 
@@ -36,13 +36,14 @@ for t = 1:nT
         mse_tmp2  = 0;
         hd1_tmp    = 0;
         hd2_tmp    = 0;
-        parfor r = 1:nSim
+        for r = 1:nSim
+        % parfor r = 1:nSim
             [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1(t_tmp, n_tmp, 0.5, 0.5, 0.5, 0.5, sqrt(0.75));
 
-            [tau_est,alpha,~,~,~,~,~] = panelpls(Y, [X1, X2], n_tmp, option, 1);
-            beta_est  = alpha2beta(alpha, tau_est);
+            [tau_est,alpha,~,~,~,~,~] = panelpls(Y, [X1, X2], n_tmp, option, 0); % 1 for mex
+            beta_est = alpha2beta(alpha, tau_est);
             
-            tau_est   = tau_est(2:end-1); % they also report first and last time index
+            tau_est = tau_est(2:end-1); % they also report first and last time index
             if ~isempty(tau_est)
                 tau_est = tau_est - 1;
             end 
