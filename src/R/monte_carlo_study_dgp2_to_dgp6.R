@@ -1,110 +1,124 @@
+# dgp 2 to 6
 
-## devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
+# devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
 library("sawr")
+library("readr")
 library("foreach")
 library("doParallel")
-## Reading in all dgp definitions
-source("r_simulation_codes/dgp.R")
 
-S             <- c(1, 2, 3)
-N             <- c(30, 60, 120, 300)
-T             <- 2 ^ c(5, 6, 7) + 1
-nSim          <- 1000
-dgp_seq       <- c(2:6)
-nDGP          <- length(dgp_seq)
-nN            <- length(N)
-nT            <- length(T)
-nS            <- length(S)
-##
-nIter         <- nDGP * nT * nS * nN
-s_est_mean    <- numeric(nIter)
-s_est_sd      <- numeric(nIter)
-mdcj_mean     <- numeric(nIter)
-mdcj_sd       <- numeric(nIter)
-mise_mean     <- numeric(nIter)
-mise_sd       <- numeric(nIter)
-hd_mean       <- numeric(nIter)
-hd_sd         <- numeric(nIter)
-s_0           <- numeric(nIter)
-## 
-rng_number    <- 123
-set.seed(rng_number)
+source("src/R/dgp.R")  # exports function DGP
 
-cl            <- parallel::makeCluster(4)
-doParallel::registerDoParallel(cl)
+
+# config parameters
+jumps <- c(1, 2, 3)  # S
+sample_sizes <- c(30, 60, 120, 300)  # N
+time_periods <- 2 ^ c(5, 6, 7) + 1  # T
+dgps <- c(2, 3, 4, 5, 6)
+
+n_sims <- 8  # 1000
+if (n_sims != 1000) warning("Check n_sims.")
+
+n_iter <- length(sample_sizes) * length(time_periods) * length(jumps) * length(dgps)
+
+s_est_mean  <- numeric(n_iter)
+s_est_sd    <- numeric(n_iter)
+mdcj_mean   <- numeric(n_iter)
+mdcj_sd     <- numeric(n_iter)
+mise_mean   <- numeric(n_iter)
+mise_sd     <- numeric(n_iter)
+hd_mean     <- numeric(n_iter)
+hd_sd       <- numeric(n_iter)
+s_0         <- numeric(n_iter)
+
+# simulation
+seed <- 123
+set.seed(seed)
 starting_time <- Sys.time()
-##
-for (dgp in dgp_seq) {
-  ##
-  for (t in 1:nT) {
-    ##
-    t_tmp <- T[t]
-    for (s in 1:nS) { 
-      ## 
-      s_tmp          <-  S[s]
-      true_beta_tau  <-  make_beta(t_tmp, s_tmp)
-      ##
-      for (n in 1:nN) { 
-        ##
-        n_tmp <- N[n]
-        ##
-        cat(sprintf("dgp = %d; n = %d; s = %d; t = %d\n", dgp, n_tmp, s_tmp, t_tmp))
-        ##
-        tmp_result_matrix <- foreach::foreach(r = 1:nSim, .combine = cbind) %dopar% {
-        #tmp_result_matrix <- c()
-        #for (r in 1:nSim) {
+
+cl <- parallel::makeCluster(4)
+doParallel::registerDoParallel(cl)
+
+for (dgp in dgps) {
+  
+  for (t in time_periods) {
+    
+    for (s in jumps) { 
+      
+      true_beta_tau <- make_beta(t, s)
+      
+      for (n in sample_sizes) { 
+        
+        cat(sprintf("dgp = %d; n = %d; s = %d; t = %d\n", dgp, n, s, t))
+        
+        tmp_result_matrix <- foreach::foreach(r = 1:n_sims, .combine = cbind) %dopar% {
           
-          data    <- DGP(t_tmp, n_tmp, true_beta_tau$beta, dgp)
+          # create data
+          data  <- DGP(t, n, true_beta_tau$beta, dgp)
           
-          ## Estimation
-          results <- sawr::saw_fun(data$Y ~ data$X, dot=FALSE)
-          ##
+          # apply method
+          if (dgp == 2) {
+              # endogeneous case has to deal with instruments
+              stop("dgp2 (endogeneous regressors) simulation is not implemented yet.")
+          } else if (dgp == 6) {
+              # time-fixed effects
+              stop("dgp6 (time-fixed effects) simulation is not implemented yet.")
+          } else {
+              results <- sawr::saw_fun(data$Y ~ data$X, dot=FALSE)
+          }
+          
+          # evaluate metrics
           estimated_taus <- results$tausList[[1]]
           s_est_mean_tmp <- sum(!is.na(estimated_taus))
-          mdcj_tmp       <- MDCJ(true_beta_tau$tau, estimated_taus, s_tmp)
+          mdcj_tmp       <- MDCJ(true_beta_tau$tau, estimated_taus, s)
           mise_tmp       <- mean((true_beta_tau$beta - results$betaMat)^2)
           hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus)
-          tmp_results    <- c(s_est_mean_tmp,
-                              ifelse(is.na(mdcj_tmp), NA_real_, mdcj_tmp),
-                              mise_tmp,
-                              ifelse(is.na(hd_mean_tmp), NA_real_, hd_mean_tmp))
-
-          tmp_results
-          #tmp_result_matrix <- cbind(tmp_result_matrix, tmp_results)
+          
+          inner_loop_results    <- c(
+            s_est_mean_tmp,
+            ifelse(is.na(mdcj_tmp), NA_real_, mdcj_tmp),
+            mise_tmp,
+            ifelse(is.na(hd_mean_tmp), NA_real_, hd_mean_tmp)
+          )
+          inner_loop_results
         }
-        index             <- (dgp - 2) *  nT   * nS   * nN + 
-                                       (t - 1) * nS   * nN + 
-                                              (s - 1) * nN + 
-                                                         n 
+        
+        .dgp <- which(dgp == dgps)
+        .t <- which(t == time_periods)
+        .n <- which(n == sample_sizes)
+        .s <- which(s == jumps)
+        index <- (.dgp - 1) * length(time_periods) * length(jumps) * length(sample_sizes) + 
+                           (.t - 1) * length(jumps) * length(sample_sizes) + 
+                                  (.s - 1) * length(sample_sizes) + 
+                                             .n 
         
         s_est_mean[index] <- mean(tmp_result_matrix[1, ], na.rm = TRUE)
         s_est_sd[index]   <- sd(tmp_result_matrix[1, ], na.rm = TRUE)
+        
         mdcj_vec          <- tmp_result_matrix[2, ]
         mdcj_mean[index]  <- mean(mdcj_vec[!is.infinite(mdcj_vec)], na.rm = TRUE)
         mdcj_sd[index]    <- sd(mdcj_vec[!is.infinite(mdcj_vec)], na.rm = TRUE)
+        
         mise_vec          <- tmp_result_matrix[3, ]
         mise_mean[index]  <- mean(mise_vec[!is.infinite(mise_vec)], na.rm = TRUE)
         mise_sd[index]    <- sd(mise_vec[!is.infinite(mise_vec)],   na.rm = TRUE)
+        
         hd_vec            <- tmp_result_matrix[4, ]
         hd_mean[index]    <- mean(hd_vec[!is.infinite(hd_vec)], na.rm = TRUE)
         hd_sd[index]      <- sd(hd_vec[!is.infinite(hd_vec)], na.rm = TRUE)
-        s_0[index]        <- sum(is.na(tmp_result_matrix[2, ])) / nSim
-        ##
-        cat(sprintf("%2.2f percent done\n", index / nIter * 100))
+        
+        s_0[index]        <- sum(is.na(tmp_result_matrix[2, ])) / n_sims
+        
+        cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
       }
     }
   }
 }
-##
 parallel::stopCluster(cl)
-##
-params                    <- list(N = N, S = S, T = T, DGP = dgp_seq)
+
+# save results to data frame then to csv file
+params                    <- list(N = sample_sizes, S = jumps, T = time_periods, DGP = dgps)
 result_df                 <- expand.grid(params)[c(4, 3, 2, 1)]
-additional_info           <- character(nrow(result_df))
-additional_info[1:3]      <- c(paste0("nsim = ", nSim), 
-                               paste0("seed = ", rng_number), 
-                               paste0("ellapsed time = ", Sys.time() - starting_time))
-##
+
 result_df$s_est_mean      <- s_est_mean
 result_df$s_est_sd        <- s_est_sd
 result_df$mise_mean       <- mise_mean
@@ -114,9 +128,19 @@ result_df$mdcj_sd         <- mdcj_sd
 result_df$hd_mean         <- hd_mean
 result_df$hd_sd           <- hd_sd
 result_df$s_0             <- s_0
-result_df$additional_info <- paste(additional_info, collapse = '; ')
-##
-filename <- paste0(paste0("r_simulation_results/rsimulaton-dgp2-to-dgp6s-", 
-                          gsub(" ", "-", gsub(":", "-", as.character(Sys.time())))), ".csv")
 
-write.csv(result_df, file = filename)
+# write to file
+date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)
+output_dir = file.path("bld", "R")
+file_name = file.path(output_dir, paste0("simulation_dgp2_to_dgp6_", date_time_str, ".csv"))
+write_csv(result_df, file_name)
+
+# write additional info
+additional_info <- c(
+  paste0("nsim = ", n_sims), 
+  paste0("seed = ", seed), 
+  paste0("ellapsed time = ", Sys.time() - starting_time)
+)
+file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp6.txt"))
+writeLines(additional_info, file_connection)
+close(file_connection)

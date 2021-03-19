@@ -1,3 +1,5 @@
 ARCHIVE/
 bld/ARCHIVE/
-*.pdf
+bld/R/
+pdfs/
+.Rproj.user
