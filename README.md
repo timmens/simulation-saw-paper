@@ -8,8 +8,11 @@
 ## Introduction
 
 Here we provide computer code which can be used to reproduce the simulation results in
-the paper **A Wavelet Method for Panel Models with Jump Discontinuities in the Parameters**
-_(Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.)_.
+the paper
+
+***A Wavelet Method for Panel Models with Jump Discontinuities in the Parameters***
+
+by Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.
 
 
 ## How to Reproduce
@@ -19,15 +22,18 @@ method is written in MATLAB and hence for a complete reproduction one needs to r
 MATLAB files stored in ``src/matlab``; more on that below. Given that the MATLAB
 simulation results have been produced the rest is easy. You simply need to source the
 file ``src/main.R``. It will run the simulations of our method and produce the overall
-tex file which we used in the paper. The results can then be found in ``bld/tex`` and
+tex files which are used in the paper. The results can then be found in ``bld/tex`` and
 ``bld/R``.
 
 **Note:**
-Notice that the ``bld`` we provide in this repository is not empty, which is usually
-the case in reproduction repositiories. We do this since the runtime of the MATLAB codes
-is long and as MATLAB is proprietary not everyone has access to it. For a fresh run of
-the simulation of our method remove the folder ``bld/R`` and ``bld/tex`` then source
+Notice that the ``bld`` folder we provide here is not empty, which is usually the case
+in reproduction repositories. We do this since the runtime of the MATLAB codes is long
+and since access to MATLAB limited as it is proprietary. For a fresh run of the
+simulation of our method remove the folder ``bld/R`` and ``bld/tex`` then source
 ``src/main.R``.
+
+**Run the MATLAB files:**
+Not implemented yet.
 
 ## Our Method 
 
