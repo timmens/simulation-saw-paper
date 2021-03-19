@@ -1,10 +1,3 @@
-# TODO
-
-- [ ] 5. R1: Setup DGP with time fixed effects.
-- [ ] 5. R3: Simulation results n = 30. Might need to focus on SAW-estimator and compare quantity defined in Thm 1.
-- [ ] 6. R3: DGP with endogeneous regressors, maybe delete DGP2 or DGP3 (Dominik favors deleting DGP3). Need to check if MATLAB codes can handle this case and if yes udpate code there to.
-
-
 ## Introduction
 
 Here we provide computer code which can be used to reproduce the simulation results in
@@ -20,10 +13,12 @@ by Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.
 Reproduction of all results is a bit tricky. This is due to the fact that the comparison
 method is written in MATLAB and hence for a complete reproduction one needs to run the
 MATLAB files stored in ``src/matlab``; more on that below. Given that the MATLAB
-simulation results have been produced the rest is easy. You simply need to source the
-file ``src/main.R``. It will run the simulations of our method and produce the overall
-tex files which are used in the paper. The results can then be found in ``bld/tex`` and
-``bld/R``.
+simulation results have been produced the rest is easy. You simply need open the Rpoject
+``simulation.Rproj`` and then from the running session source the file ``src/main.R``.
+It will run the simulations of our method and produce the overall tex files which are
+used in the paper. The results can then be found in ``bld/tex`` and ``bld/R``. Note
+that you do not have to use the ``Rproj`` file as long as you adjust the relevant
+paths.
 
 **Note:**
 Notice that the ``bld`` folder we provide here is not empty, which is usually the case

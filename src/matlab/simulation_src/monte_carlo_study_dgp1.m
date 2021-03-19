@@ -72,14 +72,17 @@ for t = 1:nT
     end
 end
 
-
+% format table and write to disc
 [cN, cT] = ndgrid(N, T);
 T = cT(:); N = cN(:);
 result_table = table(T, N, s_est, mse1, mse2, hd1, hd2); 
 disp(result_table);
-ellapsed_time = toc; 
+ellapsed_time = toc;
 
-% save additional information to table
+file_name = "simulation-dgp1-alt-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+writetable(result_table,file_name)
+
+% save additional information
 [row_table, col_table] = size(result_table);
 additional_info        = string(nan(row_table, 1));
 additional_info(1, 1)  = "nsim = " + nSim;
@@ -88,8 +91,5 @@ additional_info(3, 1)  = "n.grid = " + option.nGrid;
 additional_info(4, 1)  = "ellapsed time = " + ellapsed_time;
 result_table = [result_table, table(additional_info)];
 
-
-file_name = "simulation-dgp1-alt-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
-writetable(result_table,file_name)
 
 profile viewer

@@ -74,7 +74,7 @@ dgp2 <- function(T, N, beta) {
   Z <- alpha / 2
   X <- Z + e[,1]
   
-  beta  <- rep(beta, N)
+  beta <- rep(beta, N)
   
   Y <- make_Y(X, beta, alpha, 1, e[,2])
   
@@ -136,11 +136,9 @@ dgp5 <- function(T, N, beta) {
   X     <- tmp$X
   alpha <- tmp$alpha
   
-  theta <- sin(seq(T))
-  theta <- rep(theta, each = N)
+  theta <- sin(seq(T)) # time-fixed effect
   
-  Y <- make_Y(X, beta, alpha, gamma, e) + theta  # please check if this is
-                                                 # correctly added (theta)
+  Y <- make_Y(X, beta, alpha, gamma, e, theta)
   
   list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T))
 }
@@ -170,8 +168,26 @@ make_X <- function(T, N) {
 }
 
 
-make_Y <- function(X, beta, alpha, theta, e) {
-  X * beta + alpha + sqrt(theta) * e
+make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
+  #' Construct labels from parameters and features
+  #' 
+  #' @param X 1d feature vector of size (T x N)
+  #' @param beta 1d slope paramater of size (T x N)
+  #' @param alpha 1d individual fixed effects of size (T x N)
+  #' @param gamma 1d variance scaler of size (T x N)
+  #' @param e 1d error terms of size (T x N)
+  #' @param theta 1d time fixed effects of size (T) or scalar, defaults to NULL
+  #' @param mu intercept, defaults to 0
+  
+  if (is.null(theta)) {
+    theta <- 0
+  } else {
+    N <- as.integer(length(alpha) / length(theta))
+    theta <- rep(theta, each = N)
+  }
+  
+  y <- X * beta + alpha + theta + sqrt(gamma) * e
+  return(y)
 }
 
 
