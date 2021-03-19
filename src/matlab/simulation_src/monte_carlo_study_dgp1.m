@@ -79,17 +79,25 @@ result_table = table(T, N, s_est, mse1, mse2, hd1, hd2);
 disp(result_table);
 ellapsed_time = toc;
 
-file_name = "simulation-dgp1-alt-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
-writetable(result_table,file_name)
+% getting bld path (matlab is such a *** language)
+current_file_path = matlab.desktop.editor.getActiveFilename;
+bld = split(current_file_path, "/src/");
+bld = string(bld);
+bld = bld(1);
+bld = bld + "/bld/matlab/";
+
+file_name = "simulation-dgp1-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+writetable(result_table, bld + file_name)
 
 % save additional information
-[row_table, col_table] = size(result_table);
-additional_info        = string(nan(row_table, 1));
+additional_info        = string(nan(4, 1));
 additional_info(1, 1)  = "nsim = " + nSim;
 additional_info(2, 1)  = "rng = " + rng_number;
 additional_info(3, 1)  = "n.grid = " + option.nGrid;
 additional_info(4, 1)  = "ellapsed time = " + ellapsed_time;
-result_table = [result_table, table(additional_info)];
 
+fid = fopen(bld + "additional_info_dgp1.txt", "w");
+fprintf(fid, "%s\n", additional_info{:});
+fclose(fid);
 
 profile viewer
