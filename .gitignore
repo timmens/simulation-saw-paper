@@ -2,5 +2,7 @@ ARCHIVE/
 bld/ARCHIVE/
 pdfs/
 .Rproj.user
+.Rhistory
+.RData
 
 src/matlab/matlab_src/newer_src_version/
