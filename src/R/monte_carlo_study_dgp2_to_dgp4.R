@@ -138,13 +138,3 @@ if (test_run) {
   file_name = file.path(output_dir, "simulation_dgp2-to-dgp4.csv")
 }
 write_csv(result_df, file_name)
-
-# write additional info
-additional_info <- c(
-  paste0("nsim = ", n_sims), 
-  paste0("seed = ", seed), 
-  paste0("ellapsed time = ", Sys.time() - starting_time)
-)
-file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp4.txt"))
-writeLines(additional_info, file_connection)
-close(file_connection)

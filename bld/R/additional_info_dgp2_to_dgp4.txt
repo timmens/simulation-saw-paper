@@ -1,3 +1,0 @@
-nsim = 500
-seed = 123
-ellapsed time = 1.11984141396152
