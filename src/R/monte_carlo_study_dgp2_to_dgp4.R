@@ -1,4 +1,4 @@
-# dgp 2 to 5
+# dgp 2 to 4
 
 # devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
 library("sawr")
@@ -18,7 +18,7 @@ n_sims <- config$n_sims
 if (n_sims != 1000) warning("Check n_sims.")
 
 jumps <- c(1, 2, 3)  # S
-dgps <- c(2, 3, 4, 5)
+dgps <- c(2, 3, 4)
 
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps) * length(dgps)
@@ -60,13 +60,10 @@ for (dgp in dgps) {
           
           # apply method
           if (dgp == 2) {
-              # endogeneous case has to deal with instruments
-              stop("dgp2 (endogeneous regressors) simulation is not implemented yet.")
-          } else if (dgp == 6) {
-              # time-fixed effects
-              stop("dgp6 (time-fixed effects) simulation is not implemented yet.")
+              # endogenous case, has to deal with instruments
+              results <- sawr::saw_fun(y=data$Y, X=data$X, Z=data$Z)
           } else {
-              results <- sawr::saw_fun(data$Y ~ data$X, dot=FALSE)
+              results <- sawr::saw_fun(y=data$Y, X=data$X)
           }
           
           # evaluate metrics
@@ -136,9 +133,9 @@ result_df$s_0             <- s_0
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)
 output_dir = file.path("bld", "R")
 if (test_run) {
-  file_name = file.path(output_dir, paste0("simulation_dgp2-to-dgp6_", date_time_str, ".csv"))
+  file_name = file.path(output_dir, paste0("simulation_dgp2-to-dgp4_", date_time_str, ".csv"))
 } else{
-  file_name = file.path(output_dir, "simulation_dgp2-to-dgp6.csv")
+  file_name = file.path(output_dir, "simulation_dgp2-to-dgp4.csv")
 }
 write_csv(result_df, file_name)
 
@@ -148,6 +145,6 @@ additional_info <- c(
   paste0("seed = ", seed), 
   paste0("ellapsed time = ", Sys.time() - starting_time)
 )
-file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp5.txt"))
+file_connection <- file(file.path(output_dir, "additional_info_dgp2_to_dgp4.txt"))
 writeLines(additional_info, file_connection)
 close(file_connection)

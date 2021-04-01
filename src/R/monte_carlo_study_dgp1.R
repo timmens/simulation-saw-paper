@@ -60,7 +60,7 @@ for (t in time_periods) {
       tau2  <- data$tau2  # true tau 2
       
       # apply method
-      results  <- sawr::saw_fun(data$Y ~ data$X1 + data$X2)
+      results  <- sawr::saw_fun(y=data$Y, X=data$X)
       
       # evaluate metrics
       tausList <- results$tausList

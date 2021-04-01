@@ -4,8 +4,9 @@
 dir.create(file.path("bld", "R"), showWarnings = FALSE)
 
 source("src/R/monte_carlo_study_dgp1.R")
-source("src/R/monte_carlo_study_dgp2.R")
-source("src/R/monte_carlo_study_dgp3_to_dgp6.R")
+source("src/R/monte_carlo_study_dgp2_to_dgp4.R")
+source("src/R/monte_carlo_study_dgp5.R")
+source("src/R/monte_carlo_study_dgp6.R")
 
 # produce latex tables from simulation results
 dir.create(file.path("bld", "tex"), showWarnings = FALSE)

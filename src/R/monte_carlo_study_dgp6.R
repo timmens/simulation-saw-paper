@@ -39,12 +39,11 @@ for (t in time_periods) {
     
     cat(sprintf("dgp = %d; n = %d; t = %d\n", 6, n, t))
     
-    foreach_result_matrix <- foreach::foreach(r = 1:nSim, .combine = cbind) %dopar% {
+    foreach_result_matrix <- foreach::foreach(r = 1:n_sims, .combine = cbind) %dopar% {
       
-      data <- DGP(t_tmp, n_tmp, NULL, 7)
-      Z    <- make_instruments(data$X)
+      data <- dgp6(t, n, beta = NULL)
       
-      results <- sawr::saw_fun(data$Y ~ Z)
+      results <- sawr::saw_fun(y=data$Y, X=data$X)
       estimated_taus <- results$tausList[[1]]
       
       s_est_mean_tmp <- sum(!is.na(estimated_taus))
@@ -57,7 +56,7 @@ for (t in time_periods) {
     
     .t <- which(t == time_periods)
     .n <- which(n == sample_sizes)
-    index             <- (t - 1) * length(sample_sizes) + .n 
+    index <- (.t - 1) * length(sample_sizes) + .n 
     
     s_est_mean[index] <- mean(foreach_result_matrix[1, ], na.rm = TRUE)
     s_est_sd[index]   <- sd(foreach_result_matrix[1, ], na.rm = TRUE)

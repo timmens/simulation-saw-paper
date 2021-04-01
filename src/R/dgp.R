@@ -10,11 +10,11 @@
 
 DGP <- function(T, N, beta, index) {
   if (index <= 0)
-    stop("index has to be a integer between 3 and 6")
+    stop("index has to be an integer between 3 and 6")
   else if (index == 1)
     stop("dgp1 (multiple regrssors) cannot be called through this wrapper function")
   else if (index == 2)
-    stop("dgp2 (endogenity) cannot be called through this wrapper function")
+    return(dgp2(T, N, beta))
   else if (index == 3)
     return(dgp3(T, N, beta))
   else if (index == 4)
@@ -48,8 +48,7 @@ dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
     
     list(
       Y = matrix(Y, nrow = T),
-      X1 = matrix(X1, nrow = T),
-      X2 = matrix(X2, nrow = T),
+      X = list("x1"=matrix(X1, nrow = T), "x2"=matrix(X2, nrow = T)),
       tau1 = beta_tau1$tau,
       tau2 = beta_tau2$tau,
       beta1 = beta_tau1$beta,
@@ -61,7 +60,7 @@ dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
 dgp2 <- function(T, N, beta) {
   # dgp2 (endogeniety in the regressors)
   
-  stop("This dgp needs to be checked by dominik.")
+  warning("This dgp needs to be checked by dominik.")
 
   tmp   <- make_X(T, N)
   alpha <- tmp$alpha
@@ -71,14 +70,18 @@ dgp2 <- function(T, N, beta) {
   L <- chol(variance)
   e <- e %*% t(L)
 
-  Z <- alpha / 2
-  X <- Z + e[,1]
+  Z <- alpha / 2 + rnorm(N * T, sd=0.1)
+  X <- 2 * Z + e[,1]
   
   beta <- rep(beta, N)
   
   Y <- make_Y(X, beta, alpha, 1, e[,2])
   
-  list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T), Z = matrix(Z, nrow = T))
+  list(
+    Y = matrix(Y, nrow = T),
+    X = list(matrix(X, nrow = T)),
+    Z = list(matrix(Z, nrow = T))
+  )
 }
 
 
@@ -95,7 +98,7 @@ dgp3 <- function(T, N, beta) {
   
   Y <- make_Y(X, beta, alpha, theta, e)
   
-  list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T))
+  list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)))
 }
 
 
@@ -121,12 +124,12 @@ dgp4 <- function(T, N, beta) {
   
   Y     <- make_Y(X, beta, alpha, 1, e)
   
-  list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T))
+  list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)))
 }
 
 
 dgp5 <- function(T, N, beta) {
-  # dgp5 (heterosc. in the time- and cross-section and time-fixed effect)
+  # dgp6 (heterosc. in the time- and cross-section and time-fixed effect)
   
   gamma <- runif(N * T, 1, 2)
   e     <- rnorm(N * T)
@@ -136,11 +139,11 @@ dgp5 <- function(T, N, beta) {
   X     <- tmp$X
   alpha <- tmp$alpha
   
-  theta <- sin(seq(T)) # time-fixed effect
+  theta <- make_time_effect(T)
   
   Y <- make_Y(X, beta, alpha, gamma, e, theta)
   
-  list(Y = matrix(Y, nrow = T), X = matrix(X, nrow = T))
+  list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)), time_effect = theta)
 }
 
 
@@ -160,6 +163,7 @@ dgp6 <- function(T, N, beta) {
 make_X <- function(T, N) {
   xi    <- rnorm(T * N)
   alpha <- rnorm(N)
+  alpha <- alpha - sum(alpha) / N
   alpha <- rep(alpha, each = T)
   
   X     <- 0.5 * alpha + xi
@@ -183,10 +187,10 @@ make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
     theta <- 0
   } else {
     N <- as.integer(length(alpha) / length(theta))
-    theta <- rep(theta, each = N)
+    theta <- rep(theta, N)
   }
   
-  y <- X * beta + alpha + theta + sqrt(gamma) * e
+  y <- mu + X * beta + alpha + theta + sqrt(gamma) * e
   return(y)
 }
 
@@ -211,9 +215,15 @@ make_beta <- function(T, S) {
     betas    <- (3 / 2) * (-1) ^ (1:(S + 1))
     
     beta     <- rep(betas, times = rep_beta)
-    beta
   }
   list(beta = beta, tau = tau)
+}
+
+
+make_time_effect <- function(T) {
+  theta <- make_beta(T, floor(T / 10))$beta
+  theta <- theta - sum(theta) / T
+  return(theta)
 }
 
 
