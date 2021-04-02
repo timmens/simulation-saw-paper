@@ -1,8 +1,7 @@
-profile on;
 tic;
 
 S    = [1, 2, 3];          
-N    = [25, 50, 100, 200];
+N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
 nSim = 500;
 nS   = size(S, 2);
@@ -32,7 +31,7 @@ for t = 1:nT
         [beta, tau] = make_beta(t_tmp, s_tmp);
         for n = 1:nN
             n_tmp = N(n);
-            disp("DGP = " + 7 + "; n = " + n_tmp + "; s = " + s_tmp + "; t = " + t_tmp)
+            disp("n = " + n_tmp + "; s = " + s_tmp + "; t = " + t_tmp)
             
             
             s_est_tmp = 0;
@@ -42,10 +41,10 @@ for t = 1:nT
             s_0_tmp   = 0;
             
             parfor r = 1:nSim
-                [Y, X]    = DGP(t_tmp, n_tmp, beta, 7);
-
-                X_tilde = make_aux_iv(X, 3);
-                [tau_est,alpha_est,~,~,~,~,~] = panelpls(Y, X_tilde, n_tmp, option, 1);
+                [Y, X] = dgp5(t_tmp, n_tmp, beta);
+                
+                X_tilde = make_aux_iv(X,t_tmp, n_tmp, 3);
+                [tau_est, alpha_est] = panelpls(Y, X_tilde, n_tmp, option, 1);
                 
                 beta_est  = alpha2beta(alpha_est, tau_est);
                 
@@ -90,25 +89,31 @@ for t = 1:nT
     end
 end
 
-
-[cN, cS, cT, cDGP] = ndgrid(N, S, T, dgp);
-T = cT(:); S = cS(:); N = cN(:); dgp = cDGP(:);
-result_table = table(dgp, T, S, N, s_est, mise, mdcj, hd, s_0); 
+% format table and write to disc
+[cN, cS, cT] = ndgrid(N, S, T);
+T = cT(:); S = cS(:); N = cN(:);
+result_table = table(T, S, N, s_est, mise, mdcj, hd, s_0); 
 disp(result_table);
-ellapsed_time = toc; 
-
-% save additional information to table
-[row_table, col_table] = size(result_table);
-additional_info        = string(nan(row_table, 1));
-additional_info(1, 1)     = "nsim = " + nSim;
-additional_info(2, 1)     = "rng = " + rng_number;
-additional_info(3, 1)     = "n.grid = " + option.nGrid;
-%additional_info(4, 1)     = "ellapsed time = " + ellapsed_time;
-result_table = [result_table, table(additional_info)]; 
+ellapsed_time = toc;
 
 
+% getting bld path (matlab is such a *** language)
+current_file_path = matlab.desktop.editor.getActiveFilename;
+bld = split(current_file_path, "/src/");
+bld = string(bld);
+bld = bld(1);
+bld = bld + "/bld/matlab/";
 
-file_name = "simulation-dgp7-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
-writetable(result_table,file_name)
+file_name = "simulation-dgp5-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+writetable(result_table, bld + file_name)
 
-profile viewer
+% save additional information
+additional_info        = string(nan(4, 1));
+additional_info(1, 1)  = "nsim = " + nSim;
+additional_info(2, 1)  = "rng = " + rng_number;
+additional_info(3, 1)  = "n.grid = " + option.nGrid;
+additional_info(4, 1)  = "ellapsed time = " + ellapsed_time;
+
+fid = fopen(bld + "additional_info_dgp5.txt", "w");
+fprintf(fid, "%s\n", additional_info{:});
+fclose(fid);

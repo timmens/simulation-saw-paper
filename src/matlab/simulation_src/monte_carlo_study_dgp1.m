@@ -1,26 +1,25 @@
 % monte carlo study for DGP 1
-profile on;
 tic;
         
-N    = [25, 50, 100, 200];
+N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
 nSim = 4; %500;
 nN   = size(N, 2);
 nT   = size(T, 2);
 
-option.nGrid     = 40; 
-option.maxLambda = 100; 
+option.nGrid     = 40;
+option.maxLambda = 100;
 option.minLambda = 0.0001;
 
-s_est   = nan(nT * nN, 1);
-mse1    = nan(nT * nN, 1);
-mse2    = nan(nT * nN, 1);
-hd1      = nan(nT * nN, 1);
-hd2      = nan(nT * nN, 1);
+s_est = nan(nT * nN, 1);
+mse1 = nan(nT * nN, 1);
+mse2 = nan(nT * nN, 1);
+hd1 = nan(nT * nN, 1);
+hd2 = nan(nT * nN, 1);
 
 rng_number = 321;
-rng(rng_number)   % set random number generator seed
-parpool(4) % declare (local) parallel cluster with 4 workers 
+rng(rng_number) % set random number generator seed
+parpool(2) % declare (local) parallel cluster with 4 workers 
 
 nIter = nT * nN;
 
@@ -38,7 +37,7 @@ for t = 1:nT
         hd2_tmp    = 0;
         for r = 1:nSim
         % parfor r = 1:nSim
-            [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1(t_tmp, n_tmp, 0.5, 0.5, 0.5, 0.5, sqrt(0.75));
+            [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1(t_tmp, n_tmp, 0.5, 0.5, 0.5, 0.5);
 
             [tau_est,alpha,~,~,~,~,~] = panelpls(Y, [X1, X2], n_tmp, option, 0); % 1 for mex
             beta_est = alpha2beta(alpha, tau_est);
@@ -99,5 +98,3 @@ additional_info(4, 1)  = "ellapsed time = " + ellapsed_time;
 fid = fopen(bld + "additional_info_dgp1.txt", "w");
 fprintf(fid, "%s\n", additional_info{:});
 fclose(fid);
-
-profile viewer

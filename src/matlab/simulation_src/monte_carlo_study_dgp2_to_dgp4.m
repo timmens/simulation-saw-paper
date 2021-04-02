@@ -1,8 +1,7 @@
-profile on;
 tic;
 
 S    = [1, 2, 3];          
-N    = [25, 50, 100, 200];
+N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
 dgp  = [2, 3, 4];
 nSim = 500;
@@ -45,10 +44,15 @@ for i = dgp
                 s_0_tmp   = 0;
 
                 parfor r = 1:nSim
-                    [Y, X]    = DGP(t_tmp, n_tmp, beta, i);
                     
-                    [tau_est,alpha_est] = panelpls(Y, X, n_tmp, option, 1);
-                    
+                    if i == 2
+                        [Y, X, Z] = dgp2(t_tmp, n_tmp, beta);
+                        [tau_est, alpha_est] = panelpgmm(Y, X, Z, n_tmp, option);                        
+                    else
+                        [Y, X] = DGP(t_tmp, n_tmp, beta, i);
+                        [tau_est,alpha_est] = panelpls(Y, X, n_tmp, option, 1);
+                    end    
+                        
                     beta_est  = alpha2beta(alpha_est, tau_est);
 		    
                     tau_est   = tau_est(2:end-1); % they also report first and last time index
@@ -111,5 +115,3 @@ result_table = [result_table, table(additional_info)];
 
 file_name = "simulation-dgp2-dgp4-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
 writetable(result_table,file_name)
-
-profile viewer

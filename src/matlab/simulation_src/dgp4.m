@@ -3,7 +3,7 @@ function [Y, X] = dgp4 (T, N, beta)
     % we use a "burn in" which is common in the simulation of stationary
     % time series
     burn = 50; 
-    zeta = normrnd(0, sqrt(.5), [(burn + T), N]); 
+    zeta = normrnd(0, sqrt(2), [(burn + T), N]); 
     rho  = (rand(N, 1) * .5)'; 
     e    = zeros((T + burn), N);
     
