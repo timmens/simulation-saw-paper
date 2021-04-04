@@ -9,8 +9,7 @@ function [beta, tau] = make_beta (T, S)
     else 
        tau      = make_tau(T, S);
        rep_beta = diff([0; tau; T]);
-       betas    = (2 / 3) * (-1).^(1:(S + 1)).';  
-    
+       betas    = (3 / 2) * (-1).^(1:(S + 1)).';  
        beta      = repelem(betas, rep_beta);
     end
     

@@ -1,8 +1,16 @@
-function [Y, X] = dgp2 (T, N, beta)
-    theta      = repelem(1 + rand(N, 1), T);    
-    e          = normrnd(0, sqrt(.75), [T * N, 1]);
-    beta       = repmat(beta, [N, 1]);
+function [Y, X, Z] = dgp2 (T, N, beta)   
 
-    [X, alpha] = make_X(T, N); 
-    Y          = make_Y(X, beta, alpha, theta, e); 
+    [~, alpha] = make_X(T, N);
+    
+    e = normrnd(0, 1, [T * N, 2]);
+    variance = [[1, 1/2]; [1/2, 1]];
+    L = chol(variance);
+    e = e * transpose(L);
+    
+    Z = alpha / 2 + normrnd(0, 0.1, [N * T, 1]);
+    X = 2 * Z + e(:, 1);
+    
+    beta = repmat(beta, [N, 1]);
+    
+    Y = make_Y(X, beta, alpha, 1, e(:, 2)); 
 end 

@@ -13,22 +13,14 @@ by Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.
 Reproduction of all results is a bit tricky. This is due to the fact that the comparison
 method is written in MATLAB and hence for a complete reproduction one needs to run the
 MATLAB files stored in ``src/matlab``; more on that below. Given that the MATLAB
-simulation results have been produced the rest is easy. You simply need open the Rpoject
-``simulation.Rproj`` and then from the running session source the file ``src/main.R``.
-It will run the simulations of our method and produce the overall tex files which are
-used in the paper. The results can then be found in ``bld/tex`` and ``bld/R``. Note
-that you do not have to use the ``Rproj`` file as long as you adjust the relevant
-paths.
-
-**Note:**
-Notice that the ``bld`` folder we provide here is not empty, which is usually the case
-in reproduction repositories. We do this since the runtime of the MATLAB codes is long
-and since access to MATLAB limited as it is proprietary. For a fresh run of the
-simulation of our method remove the folder ``bld/R`` and ``bld/tex`` then source
-``src/main.R``.
+simulation results have been produced the rest is easy: You simply need open the Rproject
+``simulation.Rproj`` and then source the file ``src/main.R``.  It will run the
+simulations of our method and produce the overall tex files which are used in
+the paper. The results can then be found in ``bld/tex`` and ``bld/R``. Note
+that you do not have to use the ``Rproj`` file as long as you adjust the
+relevant paths.
 
 **Run the MATLAB files:**
-Not implemented yet.
 
 To run the matlab code you first need to download the software corresponding to the
 method presented in [Qian and Su, 2016b](https://www.sciencedirect.com/science/article/abs/pii/S0304407615002377?via%3Dihub).

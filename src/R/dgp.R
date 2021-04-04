@@ -89,7 +89,7 @@ dgp3 <- function(T, N, beta) {
   # dgp3 (heteroscedasticity in the time- and cross-section)
   
   theta <- runif(N * T, 1, 2)
-  e     <- rnorm(N * T, sd = sqrt(.75))
+  e     <- rnorm(N * T)
   beta  <- rep(beta, N)
   
   tmp   <- make_X(T, N)
@@ -129,7 +129,7 @@ dgp4 <- function(T, N, beta) {
 
 
 dgp5 <- function(T, N, beta) {
-  # dgp6 (heterosc. in the time- and cross-section and time-fixed effect)
+  # dgp5 (heterosc. in the time- and cross-section and time-fixed effect)
   
   gamma <- runif(N * T, 1, 2)
   e     <- rnorm(N * T)

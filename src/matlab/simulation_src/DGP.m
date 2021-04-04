@@ -4,7 +4,7 @@ function [Y, X] = DGP (T, N, beta, index)
     elseif index == 1
         error("dgp 1 cannot be called through this wrapper function");
     elseif index == 2
-        [Y, X] = dgp2(T, N, beta);
+        error("dgp 2 cannot be called through this wrapper");
     elseif index == 3
         [Y, X] = dgp3(T, N, beta);
     elseif index == 4
