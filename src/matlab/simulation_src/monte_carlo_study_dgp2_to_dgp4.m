@@ -53,6 +53,7 @@ for i = dgp
                 s_0_tmp   = 0;
 
                 parfor r = 1:nSim
+                    
                     if i == 2
                         [Y, X, Z] = dgp2(t_tmp, n_tmp, beta);
                         [tau_est, alpha_est] = panelpgmm(Y, X, Z, n_tmp, option);                        
@@ -60,7 +61,7 @@ for i = dgp
                         [Y, X] = DGP(t_tmp, n_tmp, beta, i);
                         [tau_est,alpha_est] = panelpls(Y, X, n_tmp, option, 1);
                     end    
-                    
+                        
                     beta_est  = alpha2beta(alpha_est, tau_est);
 		    
                     tau_est   = tau_est(2:end-1); % they also report first and last time index
@@ -133,15 +134,7 @@ bld = bld + "/bld/matlab/";
 file_name = "simulation_dgp2-to-dgp4-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
 writetable(result_table, bld + file_name)
 
-                s_est_mean(index) = s_est_mean_tmp  / nSim;
-                s_est_sd(index)   = sqrt((s_est_sd_tmp - s_est_mean_tmp^2 / nSim) / (nSim - 1));
-                mdcj_mean(index)  = mdcj_mean_tmp  / nSim;
-                mdcj_sd(index) = sqrt((mdcj_sd_tmp - mdcj_mean_tmp^2 / nSim) / (nSim - 1));
-                mise_mean(index)  = mise_mean_tmp / nSim;
-                mise_sd(index) = sqrt((mise_sd_tmp - mise_mean_tmp^2 / nSim) / (nSim - 1));
-                s_0(index)   = s_0_tmp / nSim;
-                hd_mean(index)    = hd_mean_tmp / nSim;
-                hd_sd(index) = sqrt((hd_sd_tmp - hd_mean_tmp^2 / nSim) / (nSim - 1));llapsed_time = toc; 
+ellapsed_time = toc; 
 additional_info        = string(nan(4, 1));
 additional_info(1, 1)  = "nsim = " + nSim;
 additional_info(2, 1)  = "rng = " + rng_number;

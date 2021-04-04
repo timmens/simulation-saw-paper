@@ -5,5 +5,7 @@ pdfs/
 .Rhistory
 .RData
 
+.DS_Store
+
 src/matlab/matlab_src/newer_src_version/
 src/matlab/matlab-codes/
