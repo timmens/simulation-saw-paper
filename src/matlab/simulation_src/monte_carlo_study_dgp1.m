@@ -1,8 +1,9 @@
 % monte carlo study for DGP 1
 tic;
         
-N    = [30, 60, 120, 300];
-T    = 2 .^ [5, 6, 7] + 1;
+test = true;
+N    = [30, 60]; % , 120, 300];
+T    = 2 .^ [5, 6] + 1; %, 7] + 1;
 nSim = 4; %500;
 nN   = size(N, 2);
 nT   = size(T, 2);
@@ -105,7 +106,12 @@ bld = string(bld);
 bld = bld(1);
 bld = bld + "/bld/matlab/";
 
-file_name = "simulation-dgp1-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+file_name = "simulation_dgp1";
+if test
+    file_name = file_name + "_" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+else
+    file_name = file_name + ".csv";
+end
 writetable(result_table, bld + file_name)
 
 % save additional information

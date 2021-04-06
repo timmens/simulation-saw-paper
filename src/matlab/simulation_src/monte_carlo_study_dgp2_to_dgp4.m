@@ -1,11 +1,12 @@
 tic;
 
-S    = [1, 2, 3];          
-N    = [30, 60, 120, 300];
-T    = 2 .^ [5, 6, 7] + 1;
-dgp  = [2, 3, 4];
+test = true;
+S    = [1, 2]; % , 3];          
+N    = [30, 60]; %, 120, 300];
+T    = 2 .^ [5, 6] + 1; % , 7] + 1;
+dgp  = [2]; % [2, 3, 4];
 
-nSim = 500;
+nSim = 4; %500;
 nDGP = size(dgp, 2);
 nS   = size(S, 2);
 nN   = size(N, 2);
@@ -59,7 +60,7 @@ for i = dgp
                         [tau_est, alpha_est] = panelpgmm(Y, X, Z, n_tmp, option);                        
                     else
                         [Y, X] = DGP(t_tmp, n_tmp, beta, i);
-                        [tau_est,alpha_est] = panelpls(Y, X, n_tmp, option, 1);
+                        [tau_est,alpha_est] = panelpls(Y, X, n_tmp, option, 0); % 1 mex faster
                     end    
                         
                     beta_est  = alpha2beta(alpha_est, tau_est);
@@ -131,7 +132,12 @@ bld = string(bld);
 bld = bld(1);
 bld = bld + "/bld/matlab/";
 
-file_name = "simulation_dgp2-to-dgp4-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+file_name = "simulation_dgp2-to-dgp4";
+if test
+    file_name = file_name + "_" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+else
+    file_name = file_name + ".csv";
+end
 writetable(result_table, bld + file_name)
 
 ellapsed_time = toc; 

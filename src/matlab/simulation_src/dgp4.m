@@ -1,7 +1,4 @@
 function [Y, X] = dgp4 (T, N, beta)     
-    % construct autocorrelated error terms (on the individual level);
-    % we use a "burn in" which is common in the simulation of stationary
-    % time series
     burn = 50; 
     zeta = normrnd(0, sqrt(2), [(burn + T), N]); 
     rho  = (rand(N, 1) * .5)'; 
@@ -17,5 +14,5 @@ function [Y, X] = dgp4 (T, N, beta)
     beta       = repmat(beta, [N, 1]);
     
     [X, alpha] = make_X(T, N); 
-    Y          = make_Y(X, beta, alpha, 1, e);
+    Y          = make_Y(X, beta, alpha, 1, e, [], []);
 end

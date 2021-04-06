@@ -12,5 +12,9 @@ function [Y, X, Z] = dgp2 (T, N, beta)
     
     beta = repmat(beta, [N, 1]);
     
-    Y = make_Y(X, beta, alpha, 1, e(:, 2)); 
+    Y = make_Y(X, beta, alpha, 1, e(:, 2), [], []);
+    
+    ZZ = reshape(Z, [T, N]);
+    ZZ = ZZ(2:end, :);
+    Z = reshape(ZZ, [N * (T - 1), 1]);
 end 

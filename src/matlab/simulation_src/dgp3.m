@@ -4,5 +4,5 @@ function [Y, X] = dgp3 (T, N, beta)
     beta       = repmat(beta, [N, 1]);
     
     [X, alpha] = make_X(T, N); 
-    Y          = make_Y(X, beta, alpha, theta, e);
+    Y          = make_Y(X, beta, alpha, theta, e, [], []);
 end   

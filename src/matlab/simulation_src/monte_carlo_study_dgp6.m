@@ -1,8 +1,9 @@
 tic;
-     
-N    = [30, 60, 120, 300];
-T    = 2 .^ [5, 6, 7] + 1;
-nSim = 500;
+    
+test = true;
+N    = [30, 60]; % , 120, 300];
+T    = 2 .^ [5, 6] + 1; %, 7] + 1;
+nSim = 4; % 500
 nN   = size(N, 2);
 nT   = size(T, 2);
 
@@ -26,7 +27,7 @@ for t = 1:nT
     t_tmp = T(t);
     for n = 1:nN
         n_tmp = N(n);
-        disp("dgp = " + 7 + "; n = " + n_tmp + "; t = " + t_tmp)
+        disp("dgp = " + 6 + "; n = " + n_tmp + "; t = " + t_tmp)
 
         s_est_mean_tmp = 0;
         s_est_sd_tmp = 0;
@@ -41,8 +42,7 @@ for t = 1:nT
         parfor r = 1:nSim
             [Y, X, beta] = dgp6(t_tmp, n_tmp);
 
-            X_tilde = make_aux_iv(X, t_tmp, n_tmp, 3);
-            [tau_est,alpha_est,~,~,~,~,~] = panelpls(Y, X_tilde, n_tmp, option, 1);
+            [tau_est,alpha_est,~,~,~,~,~] = panelpls(Y, X, n_tmp, option, 0);
 
             beta_est = alpha2beta(alpha_est, tau_est);
 
@@ -85,7 +85,7 @@ for t = 1:nT
 end
 
 [cN, cT] = ndgrid(N, T);
-T = cT(:); N = cN(:)
+T = cT(:); N = cN(:);
 result_table = table(T, N, s_est_mean, s_est_sd, mise_mean, mise_sd, s_0);
 
 % getting bld path (matlab is such a *** language)
@@ -95,7 +95,12 @@ bld = string(bld);
 bld = bld(1);
 bld = bld + "/bld/matlab/";
 
-file_name = "simulation_dgp6-" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+file_name = "simulation_dgp6";
+if test
+    file_name = file_name + "_" + regexprep(regexprep(datestr(datetime), ' ','-'), ':', '-')+ ".csv";
+else
+    file_name = file_name + ".csv";
+end
 writetable(result_table, bld + file_name)
 
 % save additional information
