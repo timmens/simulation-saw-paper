@@ -14,7 +14,7 @@ test_run <- config$test
 sample_sizes <- config$sample_sizes
 time_periods <- config$time_periods
 n_sims <- config$n_sims
-if (n_sims != 1000) warning("Check n_sims.")
+if (n_sims != 500) warning("Check n_sims.")
 
 n_iter <- length(sample_sizes) * length(time_periods)
 
@@ -23,6 +23,8 @@ s_est_sd   <- numeric(n_iter)
 mise_sd    <- numeric(n_iter)
 mise_mean  <- numeric(n_iter)
 s_0        <- numeric(n_iter)
+taed_mean   <- numeric(n_iter)  # time average euclidian distance (taed)
+taed_sd     <- numeric(n_iter)
 
 seed <- 123
 set.seed(seed)
@@ -50,6 +52,10 @@ for (t in time_periods) {
       
       mise_tmp    <- mean((true_beta - results$betaMat)^2)
       
+      # time-average of euclidian distance
+      gamma_true <- beta_to_gamma(true_beta)
+      taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+      
       inner_loop_results <- c(s_est_mean_tmp, mise_tmp)
       inner_loop_results
     }
@@ -67,6 +73,9 @@ for (t in time_periods) {
     
     s_0[index]        <- sum(is.na(foreach_result_matrix[1, ])) / n_sims
     
+    taed_mean[index] <- mean(tmp_result_matrix[3, ], na.rm = TRUE)
+    taed_sd[index] <- sd(tmp_result_matrix[3, ], na.rm = TRUE)
+    
     cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
     
   }
@@ -82,6 +91,8 @@ result_df$s_est_sd   <- s_est_sd
 result_df$mise_mean  <- mise_mean
 result_df$mise_sd    <- mise_sd
 result_df$s_0        <- s_0
+result_df$taed_mean <- taed_mean
+result_df$taed_sd <- taed_sd
 
 # write to file
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)

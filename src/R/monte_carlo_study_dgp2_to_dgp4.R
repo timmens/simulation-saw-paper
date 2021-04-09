@@ -15,7 +15,7 @@ test_run <- config$test
 sample_sizes <- config$sample_sizes
 time_periods <- config$time_periods
 n_sims <- config$n_sims
-if (n_sims != 1000) warning("Check n_sims.")
+if (n_sims != 500) warning("Check n_sims.")
 
 jumps <- c(1, 2, 3)  # S
 dgps <- c(2, 3, 4)
@@ -32,6 +32,8 @@ mise_sd     <- numeric(n_iter)
 hd_mean     <- numeric(n_iter)
 hd_sd       <- numeric(n_iter)
 s_0         <- numeric(n_iter)
+taed_mean   <- numeric(n_iter)  # time average euclidian distance (taed)
+taed_sd     <- numeric(n_iter)
 
 # simulation
 seed <- 123
@@ -66,18 +68,23 @@ for (dgp in dgps) {
               results <- sawr::saw_fun(y=data$Y, X=data$X)
           }
           
-          # evaluate metrics
+          ## evaluate metrics
           estimated_taus <- results$tausList[[1]]
           s_est_mean_tmp <- sum(!is.na(estimated_taus))
           mdcj_tmp       <- MDCJ(true_beta_tau$tau, estimated_taus, s)
           mise_tmp       <- mean((true_beta_tau$beta - results$betaMat)^2)
           hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus)
           
+          # time-average of euclidian distance
+          gamma_true <- beta_to_gamma(true_beta_tau$beta)
+          taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+          
           inner_loop_results    <- c(
             s_est_mean_tmp,
             ifelse(is.na(mdcj_tmp), NA_real_, mdcj_tmp),
             mise_tmp,
-            ifelse(is.na(hd_mean_tmp), NA_real_, hd_mean_tmp)
+            ifelse(is.na(hd_mean_tmp), NA_real_, hd_mean_tmp),
+            taed_tmp
           )
           inner_loop_results
         }
@@ -108,6 +115,9 @@ for (dgp in dgps) {
         
         s_0[index]        <- sum(is.na(tmp_result_matrix[2, ])) / n_sims
         
+        taed_mean[index] <- mean(tmp_result_matrix[5, ], na.rm = TRUE)
+        taed_sd[index] <- sd(tmp_result_matrix[5, ], na.rm = TRUE)
+        
         cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
       }
     }
@@ -128,6 +138,8 @@ result_df$mdcj_sd         <- mdcj_sd
 result_df$hd_mean         <- hd_mean
 result_df$hd_sd           <- hd_sd
 result_df$s_0             <- s_0
+result_df$taed_mean <- taed_mean
+result_df$taed_sd <- taed_sd
 
 # write to file
 date_time_str = substr(gsub(" ", "-", gsub(":", "-", as.character(Sys.time()))), 1, 16)

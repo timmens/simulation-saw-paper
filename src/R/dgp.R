@@ -266,3 +266,38 @@ dist_hausdorff <- function(set1, set2) {
   
   return(dist)
 }
+
+
+beta_to_gamma <- function(beta, time_effect = NULL) {
+  if (typeof(beta) == "list") {
+    # multivariable case
+    time_periods <- length(beta[[1]])
+    gamma <- c()
+    for (.beta in beta) {
+      gamma <- cbind(gamma, .beta[-1], .beta[-time_periods])
+    }
+  } else {
+    # case of one regressor
+    time_periods <- length(beta)
+    gamma <- cbind(beta[-1], beta[-time_periods])
+  }
+  
+  if (is.null(time_effect)) {
+    gamma <- cbind(gamma, 0)
+  } else {
+    delta_theta <- diff(time_effect)
+    gamma <- cbind(gamma, delta_theta)
+  }
+  
+  return(gamma)
+}
+
+
+dist_euclidian_time_average <- function(gamma_hat, gamma) {
+  dist <- 0
+  for (t in nrow(gamma)) {
+    dist <- dist + sum((gamma_hat[t, ] - gamma[t, ])**2)
+  }
+  
+  return(dist)
+}
