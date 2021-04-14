@@ -63,21 +63,21 @@ for (dgp in dgps) {
           # apply method
           if (dgp == 2) {
               # endogenous case, has to deal with instruments
-              results <- sawr::saw_fun(y=data$Y, X=data$X, Z=data$Z)
+              results <- sawr::fit_saw(y=data$Y, X=data$X, Z=data$Z)
           } else {
-              results <- sawr::saw_fun(y=data$Y, X=data$X)
+              results <- sawr::fit_saw(y=data$Y, X=data$X)
           }
           
           ## evaluate metrics
-          estimated_taus <- results$tausList[[1]]
+          estimated_taus <- results$jump_locations[[1]]
           s_est_mean_tmp <- sum(!is.na(estimated_taus))
           mdcj_tmp       <- MDCJ(true_beta_tau$tau, estimated_taus, s)
-          mise_tmp       <- mean((true_beta_tau$beta - results$betaMat)^2)
-          hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus)
+          mise_tmp       <- mean((true_beta_tau$beta - results$beta_matrix)^2)
+          hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus) / t
           
           # time-average of euclidian distance
           gamma_true <- beta_to_gamma(true_beta_tau$beta)
-          taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+          taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
           
           inner_loop_results    <- c(
             s_est_mean_tmp,

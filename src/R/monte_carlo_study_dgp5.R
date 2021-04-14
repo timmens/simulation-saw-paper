@@ -60,18 +60,18 @@ for (t in time_periods) {
         data  <- dgp5(t, n, true_beta_tau$beta)
         
         # apply method
-        results <- sawr::saw_fun(y=data$Y, X=data$X, time_effect=TRUE)
+        results <- sawr::fit_saw(y=data$Y, X=data$X, time_effect=TRUE)
         
         ## evaluate metrics
-        estimated_taus <- results$tausList[[1]]
+        estimated_taus <- results$jump_locations[[1]]
         s_est_mean_tmp <- sum(!is.na(estimated_taus))
         mdcj_tmp       <- MDCJ(true_beta_tau$tau, estimated_taus, s)
-        mise_tmp       <- mean((true_beta_tau$beta - results$betaMat)^2)
-        hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus)
+        mise_tmp       <- mean((true_beta_tau$beta - results$beta_matrix)^2)
+        hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus) / t
         
         # time-average of euclidian distance
         gamma_true <- beta_to_gamma(true_beta_tau$beta, data$time_effect)
-        taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+        taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
         
         time_effect_tmp <- mean((data$time_effect - results$time_effect)^2)
         

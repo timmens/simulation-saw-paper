@@ -45,16 +45,16 @@ for (t in time_periods) {
       
       data <- dgp6(t, n, beta = NULL)
       
-      results <- sawr::saw_fun(y=data$Y, X=data$X)
-      estimated_taus <- results$tausList[[1]]
+      results <- sawr::fit_saw(y=data$Y, X=data$X)
+      estimated_taus <- results$jump_locations[[1]]
       
       s_est_mean_tmp <- sum(!is.na(estimated_taus))
       
-      mise_tmp    <- mean((true_beta - results$betaMat)^2)
+      mise_tmp    <- mean((true_beta - results$beta_matrix)^2)
       
       # time-average of euclidian distance
       gamma_true <- beta_to_gamma(true_beta)
-      taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+      taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
       
       inner_loop_results <- c(s_est_mean_tmp, mise_tmp)
       inner_loop_results

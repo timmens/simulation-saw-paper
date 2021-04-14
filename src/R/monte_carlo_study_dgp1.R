@@ -62,27 +62,27 @@ for (t in time_periods) {
       tau2  <- data$tau2  # true tau 2
       
       # apply method
-      results  <- sawr::saw_fun(y=data$Y, X=data$X)
-      tausList <- results$tausList
+      results  <- sawr::fit_saw(y=data$Y, X=data$X)
+      jump_locations <- results$jump_locations
       
       ## evaluate metrics
       
       # counting predicted jumps
-      s_est_tmp_1 <- sum(!is.na(tausList[[1]]))
-      s_est_tmp_2 <- sum(!is.na(tausList[[2]]))
+      s_est_tmp_1 <- sum(!is.na(jump_locations[[1]]))
+      s_est_tmp_2 <- sum(!is.na(jump_locations[[2]]))
       
       # mean integrated squared error
-      mise_tmp_1 <- mean((beta1 - results$betaMat[, 1])^2)
-      mise_tmp_2 <- mean((beta2 - results$betaMat[, 2])^2)
+      mise_tmp_1 <- mean((beta1 - results$beta_matrix[, 1])^2)
+      mise_tmp_2 <- mean((beta2 - results$beta_matrix[, 2])^2)
       
       # (normalized) Hausdorff metrics
-      hd_tmp1    <- dist_hausdorff(tau1, tausList[[1]]) 
-      hd_tmp2    <- dist_hausdorff(tau2, tausList[[2]]) 
-      hd_tmp     <- dist_hausdorff(c(tau1, tau2), unlist(tausList))
+      hd_tmp1    <- dist_hausdorff(tau1, jump_locations[[1]]) / t
+      hd_tmp2    <- dist_hausdorff(tau2, jump_locations[[2]]) / t
+      hd_tmp     <- dist_hausdorff(c(tau1, tau2), unlist(jump_locations)) / t
       
       # time-average of euclidian distance
       gamma_true <- beta_to_gamma(list(beta1, beta2))
-      taed_tmp <- dist_euclidian_time_average(results$gamma, gamma_true)
+      taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
       
       # return results from parallelized inner loop
       inner_loop_result <- c(
