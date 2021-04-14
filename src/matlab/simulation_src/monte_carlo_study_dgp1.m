@@ -16,14 +16,14 @@ option.minLambda = 0.0001;
 
 s_est_mean = nan(nT * nN, 1);
 s_est_sd = nan(nT * nN, 1);
-mse_mean1 = nan(nT * nN, 1);
-mse_mean2 = nan(nT * nN, 1);
-mse_sd1 = nan(nT * nN, 1);
-mse_sd2 = nan(nT * nN, 1);
-hd_mean1 = nan(nT * nN, 1);
-hd_mean2 = nan(nT * nN, 1);
-hd_sd1 = nan(nT * nN, 1);
-hd_sd2 = nan(nT * nN, 1);
+mise1_mean = nan(nT * nN, 1);
+mise2_mean = nan(nT * nN, 1);
+mise1_sd = nan(nT * nN, 1);
+mise2_sd = nan(nT * nN, 1);
+hd1_mean = nan(nT * nN, 1);
+hd2_mean = nan(nT * nN, 1);
+hd2_sd = nan(nT * nN, 1);
+hd2_sd = nan(nT * nN, 1);
 taed_mean = nan(nT * nN, 1);
 taed_sd = nan(nT * nN, 1);
 
@@ -43,12 +43,12 @@ for t = 1:nT
         results = nan([10, nSim]);
         s_est_mean_tmp = 0;
         s_est_sd_tmp = 0;
-        mse_mean_tmp1 = 0;
-        mse_mean_tmp2 = 0;
-        mse_sd_tmp1  = 0;
-        mse_sd_tmp2  = 0;
-        hd_mean1_tmp = 0;
-        hd_mean2_tmp = 0;
+        mise_mean_tmp1 = 0;
+        mise_mean_tmp2 = 0;
+        mise_sd_tmp1  = 0;
+        mise_sd_tmp2  = 0;
+        hd1_mean_tmp = 0;
+        hd2_mean_tmp = 0;
         hd_sd_tmp1   = 0;
         hd_sd_tmp2   = 0;
         taed_mean_tmp = 0;
@@ -68,16 +68,16 @@ for t = 1:nT
             s_est_mean_tmp = s_est_mean_tmp + length(tau_est);
             s_est_sd_tmp = s_est_sd_tmp + length(tau_est)^2;
 
-            % mse_mean
-            mse_mean_tmp1 = mse_mean_tmp1 + mean((beta1 - beta_est(:, 1)).^2);
-            mse_mean_tmp2 = mse_mean_tmp2 + mean((beta2 - beta_est(:, 2)).^2);
-            % mse_sd
-            mse_sd_tmp1 = mse_sd_tmp1 + mean((beta1 - beta_est(:, 1)).^2)^2;
-            mse_sd_tmp2 = mse_sd_tmp2 + mean((beta2 - beta_est(:, 2)).^2)^2;
+            % mise_mean
+            mise_mean_tmp1 = mise_mean_tmp1 + mean((beta1 - beta_est(:, 1)).^2);
+            mise_mean_tmp2 = mise_mean_tmp2 + mean((beta2 - beta_est(:, 2)).^2);
+            % mise_sd
+            mise_sd_tmp1 = mise_sd_tmp1 + mean((beta1 - beta_est(:, 1)).^2)^2;
+            mise_sd_tmp2 = mise_sd_tmp2 + mean((beta2 - beta_est(:, 2)).^2)^2;
                                 
             % Hausdorff
-            hd_mean1_tmp = hd_mean1_tmp + dist_hausdorff(tau1, tau_est) / t_tmp;
-            hd_mean2_tmp = hd_mean2_tmp + dist_hausdorff(tau2, tau_est) / t_tmp;
+            hd1_mean_tmp = hd1_mean_tmp + dist_hausdorff(tau1, tau_est) / t_tmp;
+            hd2_mean_tmp = hd2_mean_tmp + dist_hausdorff(tau2, tau_est) / t_tmp;
             % Hausdorff sd
             hd_sd_tmp1 = hd_sd_tmp1 + (dist_hausdorff(tau1, tau_est) / t_tmp)^2;
             hd_sd_tmp2 = hd_sd_tmp2 + (dist_hausdorff(tau2, tau_est) / t_tmp)^2;
@@ -94,14 +94,14 @@ for t = 1:nT
         index         = (t - 1) * nN + n;
         s_est_mean(index)  = s_est_mean_tmp / nSim;
         s_est_sd(index) = sqrt((s_est_sd_tmp - s_est_mean_tmp^2 / nSim) / (nSim - 1));
-        mse_mean1(index) = mse_mean_tmp1 / nSim;
-        mse_mean2(index) = mse_mean_tmp2 / nSim;
-        mse_sd1(index) = sqrt((mse_sd_tmp1 - mse_mean_tmp1^2 / nSim) / (nSim - 1));
-        mse_sd2(index) = sqrt((mse_sd_tmp2 - mse_mean_tmp2^2 / nSim) / (nSim - 1));
-        hd_mean1(index) = hd_mean1_tmp / nSim;
-        hd_mean2(index) = hd_mean2_tmp / nSim;
-        hd_sd1(index) = sqrt((hd_sd_tmp1 - hd_mean1_tmp^2 / nSim) / (nSim - 1));
-        hd_sd2(index) = sqrt((hd_sd_tmp2 - hd_mean2_tmp^2 / nSim) / (nSim - 1));
+        mise1_mean(index) = mise_mean_tmp1 / nSim;
+        mise2_mean(index) = mise_mean_tmp2 / nSim;
+        mise1_sd(index) = sqrt((mise_sd_tmp1 - mise_mean_tmp1^2 / nSim) / (nSim - 1));
+        mise2_sd(index) = sqrt((mise_sd_tmp2 - mise_mean_tmp2^2 / nSim) / (nSim - 1));
+        hd1_mean(index) = hd1_mean_tmp / nSim;
+        hd2_mean(index) = hd2_mean_tmp / nSim;
+        hd2_sd(index) = sqrt((hd_sd_tmp1 - hd1_mean_tmp^2 / nSim) / (nSim - 1));
+        hd2_sd(index) = sqrt((hd_sd_tmp2 - hd2_mean_tmp^2 / nSim) / (nSim - 1));
         taed_mean(index) = taed_mean_tmp / nSim;
         taed_sd(index) = sqrt((taed_sd_tmp - taed_mean_tmp^2 / nSim) / (nSim - 1));
 
@@ -113,7 +113,7 @@ end
 
 [cN, cT] = ndgrid(N, T);
 T = cT(:); N = cN(:);
-result_table = table(T, N, s_est_mean, s_est_sd, mse_mean1, mse_sd1, mse_mean2, mse_sd2, hd_mean1, hd_sd1, hd_mean2, hd_sd2, taed_mean, taed_sd); 
+result_table = table(T, N, s_est_mean, s_est_sd, mise1_mean, mise1_sd, mise2_mean, mise2_sd, hd1_mean, hd2_sd, hd2_mean, hd2_sd, taed_mean, taed_sd); 
 
 % getting bld path (matlab is such a *** language)
 current_file_path = matlab.desktop.editor.getActiveFilename;
