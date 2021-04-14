@@ -30,6 +30,9 @@ Then in your MATLAB session you need to add the paths ``src/matlab/matlab_src`` 
 ``src/matlab/simulation_src``. At last simply run the files ``monte_carlo_study_dgp*``.
 This runs the simulation and writes the results to ``bld/matlab``.
 
+In case you cannot use a Windows machine to run the matlab code you need to find the
+argument ``mex`` in the monte carlo study code and set it to 0.
+
 ## Our Method 
 
 The implementation of out method is hosted here: [sawr](https://github.com/timmens/sawr)
