@@ -6,7 +6,7 @@ function out = make_Y (X, beta, alpha, gamma, e, theta, mu)
         theta = 0;
     else
         N = length(alpha) / length(theta);
-        theta = repmat(theta, N);
+        theta = repmat(theta, N, 1);
     end
     
 	out = mu + X .* beta + alpha + theta + sqrt(gamma) .* e;
