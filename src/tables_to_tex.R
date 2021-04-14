@@ -1,188 +1,166 @@
 # read simulation results and transform to latex code
 #
-# the code is structured as follows: first we read in the simulation results
-# and perform some basic data cleaning and then we transform the combined
-# data frames to latex code
 
 library("magrittr")
 library("kableExtra")
-library("tidyverse")
+library("tidyverse", quietly = TRUE)  # aaaaaah why why why is the default to print all these messages
 
-# config parameters
-n_digits <- 3
+source("src/auxiliary.R")
+# exports: `read_simulations`, `extract_data_for_n30_table`, `construct_df`,
+# `construct_table`
+
+
+# 0. preliminaries
+
+n_digits <- 3  # number of digits to display in latex tables
 
 r_path <- file.path("bld", "R")
-matlab_path <- file.path("bld", "matlab")
+m_path <- file.path("bld", "matlab")
 tex_path <- file.path("bld", "tex")
 
 
-############################ auxiliary functions ###############################
+# 1. read data
 
-spread_df_over_s <- function(df) {
-  tmp_df1 <- df %>% filter(S == 1) %>%
-    select(-c(S)) %>%
-    rename_all(tibble::lst( ~ paste0(., '_1')))
-  tmp_df2 <- df %>% filter(S == 2) %>%
-    select(-c(S)) %>%
-    rename_all(tibble::lst( ~ paste0(., '_2')))
-  tmp_df3 <- df %>% filter(S == 3) %>%
-    select(-c(S)) %>%
-    rename_all(tibble::lst( ~ paste0(., '_3')))
+data_R <- read_simulations(r_path)
+data_m <- read_simulations(m_path)
+
+
+# 2. create data frames
+
+
+## 2.1 table n=30
+
+n30_columns <- c("dgp", "T", "S", "s_est_mean", "s_est_sd", "taed_mean", "taed_sd")
+
+df_n30_R <- extract_data_for_n30_table(data_R, n30_columns)
+df_n30_m <- extract_data_for_n30_table(data_m, n30_columns)
+
+table_n30 <- dplyr::inner_join(df_n30_R, df_n30_m, by=c("dgp", "T", "S"), suffix=c(".R", ".m"))
+
+## 2.2 tables n>30
+
+# remove n = 30 case and irrelevant columns from data
+
+# dgp1 
+data_R[["dgp1"]] <- data_R[["dgp1"]] %>% 
+  filter(N != 30) %>% 
+  select(-c("s_01", "s_02", "taed_mean", "taed_sd"))
+data_m[["dgp1"]] <- data_m[["dgp1"]] %>% 
+  filter(N != 30) %>% 
+  select(-c("taed_mean", "taed_sd"))
+ 
+# dgp2 - dgp5
+for (dgp in 2:5) {
+  data_R[[paste0("dgp", dgp)]] <- data_R[[paste0("dgp", dgp)]] %>% 
+    filter(N != 30) %>% 
+    select(-c("dgp", "s_0", "taed_mean", "taed_sd", "mdcj_mean", "mdcj_sd"))
   
-  out <- dplyr::bind_cols(tmp_df1, tmp_df2, tmp_df3)
-  return(out)
+  data_m[[paste0("dgp", dgp)]] <- data_m[[paste0("dgp", dgp)]] %>% 
+    filter(N != 30) %>% 
+    select(-c("dgp", "s_0", "taed_mean", "taed_sd", "mdcj_mean", "mdcj_sd"))
 }
 
-construct_df <- function(df) {
-  new_df <- spread_df_over_s(df)
-  new_cols <- df %>% select(c("T", "N")) %>% distinct()
-  
-  df <- dplyr::bind_cols(new_cols, new_df)
-  return(df)
-}
+# dgp 6
+data_R[["dgp6"]] <- data_R[["dgp6"]] %>% 
+  filter(N != 30) %>% 
+  select(-c("dgp", "s_0", "taed_mean", "taed_sd"))
 
-construct_table <- function(table, digits) {
-  # does not work for dgp1 and dgp7
-  out <-  table %>%
-    kable(format = 'latex',
-          booktabs = TRUE,
-          digits = digits) %>%
-    add_header_above(header = c(
-      " " = 2,
-      "S = 1" = 6,
-      "S = 2" = 6,
-      "S = 3" = 6
-    )) %>%
-    kable_styling(latex_options = "striped")
-  return(out)
-}
+data_m[["dgp6"]] <- data_m[["dgp6"]] %>% 
+  filter(N != 30) %>% 
+  select(-c("dgp", "s_0", "taed_mean", "taed_sd"))
 
-########################## tables creation #####################################
 
-## Table 1: data cleaning and construction
+# table 1
 
-# read simulation results
-df_R <-
-  readr::read_csv(file.path(r_path, "simulation_dgp1.csv")) %>%
-  select(-c(s_01, s_02, hd_mean, hd_sd))
+table1_all <- dplyr::inner_join(
+  data_R[["dgp1"]] %>% rename_at(vars(-T, -N), ~ paste0(., ".R")),
+  data_m[["dgp1"]] %>% rename_at(vars(-T, -N), ~ paste0(., ".m")),
+  by=c("T", "N"),
+  suffix=c(".R", ".m")
+  )
 
-df_m <-
-  readr::read_csv(file.path(matlab_path, "matlab-simulation-dgp1.csv"))
-
-# add suffix wether results were produces using R or matlab
-.id <- df_R[c("T", "N")]
-
-df_R <-
-  df_R %>%  mutate(hd1_mean = hd1_mean / T, hd2_mean = hd2_mean / T) %>%
-  select(-c(T, N)) %>%
-  rename_all(tibble::lst( ~ paste0(., '_R')))
-
-df_m <-
-  df_m %>% mutate(hd1_mean = hd1_mean / T, hd2_mean = hd2_mean / T) %>%
-  select(-c(T, N)) %>%
-  rename_all(tibble::lst( ~ paste0(., '_m')))
-
-# combine R and matlab results
-table1 <- dplyr::bind_cols(.id, df_R, df_m)
-
-table1_mise <- table1 %>%
+table1_mise <- table1_all %>%
   select(
     c(
       "T",
       "N",
-      "mise1_mean_R",
-      "mise1_sd_R",
-      "mise2_mean_R",
-      "mise2_sd_R",
-      "mise1_mean_m",
-      "mise1_sd_m",
-      "mise2_mean_m",
-      "mise2_sd_m"
+      "mise1_mean.R",
+      "mise1_sd.R",
+      "mise2_mean.R",
+      "mise2_sd.R",
+      "mise1_mean.m",
+      "mise1_sd.m",
+      "mise2_mean.m",
+      "mise2_sd.m"
     )
   )
 
-table1_jumps <- table1 %>%
+table1_jumps <- table1_all %>%
   select(
     c(
       "T",
       "N",
-      "s_est1_mean_R",
-      "s_est1_sd_R",
-      "s_est2_mean_R",
-      "s_est2_sd_R",
-      "hd1_mean_R",
-      "hd1_sd_R",
-      "hd2_mean_R",
-      "hd2_sd_R",
-      "s_est_mean_m",
-      "s_est_sd_m",
-      "hd1_mean_m",
-      "hd1_sd_m",
-      "hd2_mean_m",
-      "hd2_sd_m"
+      "s_est1_mean.R",
+      "s_est1_sd.R",
+      "s_est2_mean.R",
+      "s_est2_sd.R",
+      "hd1_mean.R",
+      "hd1_sd.R",
+      "hd2_mean.R",
+      "hd2_sd.R",
+      "s_est_mean.m",
+      "s_est_sd.m",
+      "hd1_mean.m",
+      "hd1_sd.m",
+      "hd2_mean.m",
+      "hd2_sd.m"
     )
   )
 
-
-## Tables 2 - 5 (R): data cleaning and construction for R codes
-df <-
-  readr::read_csv(file.path(r_path, "simulation_dgp2-to-dgp4.csv")) %>%
-  select(-c(mdcj_mean, mdcj_sd, s_0))
-
-df_dgp2 <-
-  df %>% filter(dgp == 2) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-df_dgp3 <-
-  df %>% filter(dgp == 3) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-df_dgp4 <-
-  df %>% filter(dgp == 4) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-
-table2_R <- construct_df(df_dgp2)
-table3_R <- construct_df(df_dgp3)
-table4_R <- construct_df(df_dgp4)
+table1 = list("all"=table1_all, "mise"=table1_mise, "jumps"=table1_jumps)
 
 
-## Tables 2 - 4 (matlab): data cleaning and construction for matlab codes
+# tables 2 - 5
 
-# Update matlab simulationm 
+table2_R <- construct_df(data_R[["dgp2"]])
+table3_R <- construct_df(data_R[["dgp3"]])
+table4_R <- construct_df(data_R[["dgp4"]])
+table5_R <- construct_df(
+  data_R[["dgp5"]] %>% select(-c("time_effect_mise_mean", "time_effect_mise_sd"))
+  )
 
-# # # # # # # # # #warning("New simulation go from dgp2-dgp5 not dgp6")
-# # # # # # # # # #df <-
-# # # # # # # # # #  readr::read_csv(file.path(matlab_path, "matlab-simulation-dgp2-dgp6.csv")) %>%
-# # # # # # # # # #  select(-c(mdcj_mean, mdcj_sd, additional_info, s_0))
-# # # # # # # # # #
-# # # # # # # # # #df_dgp2 <-
-# # # # # # # # # #  df %>% filter(dgp == 2) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-# # # # # # # # # #df_dgp3 <-
-# # # # # # # # # #  df %>% filter(dgp == 3) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-# # # # # # # # # #df_dgp4 <-
-# # # # # # # # # #  df %>% filter(dgp == 4) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-# # # # # # # # # #df_dgp5 <-
-# # # # # # # # # #  df %>% filter(dgp == 5) %>% mutate(hd_mean = hd_mean / T) %>% mutate(hd_sd = hd_sd / T)
-# # # # # # # # # #
-# # # # # # # # # #table2_matlab <- construct_df(df_dgp2)
-# # # # # # # # # #table3_matlab <- construct_df(df_dgp3)
-# # # # # # # # # #table4_matlab <- construct_df(df_dgp4)
-# # # # # # # # # #table5_matlab <- construct_df(df_dgp5)
+table2_m <- construct_df(data_m[["dgp2"]])
+table3_m <- construct_df(data_m[["dgp3"]])
+table4_m <- construct_df(data_m[["dgp4"]])
+table5_m <- construct_df(data_m[["dgp5"]])
 
 
-## Table 5 & 6 (R): data cleaning and construction
-table5_R <- readr::read_csv(file.path(r_path, "simulation_dgp5.csv"))
-table6_R <- readr::read_csv(file.path(r_path, "simulation_dgp6.csv"))
+# table 5: time fixed effect part
 
-## Table 6 (matlab): data cleaning and construction
+table5_time_effect <- data_R[["dgp5"]] %>% select(
+  -c(s_est_mean, s_est_sd, mise_mean, mise_sd, hd_mean, hd_sd)
+  )
 
-# Update matlba sim
+warning("Look at the data one more time, sd needs to be non-zero")
 
-# # # # # df <-
-# # # # #   readr::read_csv(file.path(matlabl_path, "matlab-simulation-dgp7.csv"))
-# # # # # table7_matlab <- df %>% select(-c("dgp", "additional_info"))
+
+# table 6
+
+table6 <- dplyr::inner_join(
+  data_R[["dgp6"]],
+  data_m[["dgp6"]], 
+  by=c("T", "N", "S"),
+  suffix=c(".R", ".m")
+  ) %>% select(-c("S"))
 
 
 
 ############################# tables to latex ##################################
-## R
 
-# create
+# table 1
+
+## create
+
 table1_jumps_tex <- table1_jumps %>%
   kableExtra::kable(
     format = 'latex',
@@ -191,38 +169,51 @@ table1_jumps_tex <- table1_jumps %>%
     ) %>%
   add_header_above(header = c(" " = 2, "R" = 8, "Matlab" = 6)) %>%
   add_header_above(header = c("DGP1" = 16))
-# save
+
+table1_mise_latex <- xtable::xtable(table1_mise, digits = c(0, 0, 0, rep(3, 8)))
+
+## save
+
 kableExtra::save_kable(table1_jumps_tex, file.path(tex_path, "table1_jumps.tex"))
 
-
-# create
-table1_mise_latex <- xtable::xtable(table1_mise, digits = c(0, 0, 0, rep(3, 8)))
-# save
 xtable::print.xtable(table1_mise_latex, file=file.path(tex_path, "table1_mise.tex"), include.rownames = FALSE)
 
-table2_latex <- construct_table(table2_R, digits = 2) %>%
-  add_header_above(header = c("DGP2" = 20))
-kableExtra::save_kable(table2_latex, file.path(tex_path, "table2_R.tex"))
 
-table3_latex <- construct_table(table3_R, digits = 2) %>%
-  add_header_above(header = c("DGP2" = 20))
-kableExtra::save_kable(table3_latex, file.path(tex_path, "table3_R.tex"))
+# table 6
 
-table4_latex <- construct_table(table4_R, digits = 2) %>%
-  add_header_above(header = c("DGP2" = 20))
-kableExtra::save_kable(table4_latex, file.path(tex_path, "table4_R.tex"))
+## create
 
-table5_latex <- construct_table(table5_R, digits=2) %>%
-  add_header_above(header = c("DGP2" = 20))
-kableExtra::save_kable(table5_latex, file.path(tex_path, "table5_R.tex"))
-
-table6_latex <- table6_R %>%
+table6_latex <- table6 %>%
   kable(format = 'latex',
         booktabs = TRUE,
         digits = n_digits) %>%
   kable_styling(latex_options = "striped") %>%
   add_header_above(header = c("DGP7" = 7))
+
+## save
+
 kableExtra::save_kable(table6_latex, file.path(tex_path, "table6_R.tex"))
+
+
+
+##### UNCLEAR WHAT HAPPENED BELOW HERE
+
+# # table2_latex <- construct_table(table2_R, digits = 2) %>%
+# #   add_header_above(header = c("DGP2" = 20))
+# # kableExtra::save_kable(table2_latex, file.path(tex_path, "table2_R.tex"))
+# # 
+# # table3_latex <- construct_table(table3_R, digits = 2) %>%
+# #   add_header_above(header = c("DGP2" = 20))
+# # kableExtra::save_kable(table3_latex, file.path(tex_path, "table3_R.tex"))
+# # 
+# # table4_latex <- construct_table(table4_R, digits = 2) %>%
+# #   add_header_above(header = c("DGP2" = 20))
+# # kableExtra::save_kable(table4_latex, file.path(tex_path, "table4_R.tex"))
+# # 
+# # table5_latex <- construct_table(table5_R, digits=2) %>%
+# #   add_header_above(header = c("DGP2" = 20))
+# # kableExtra::save_kable(table5_latex, file.path(tex_path, "table5_R.tex"))
+
 
 
 ## matlab

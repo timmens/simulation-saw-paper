@@ -8,4 +8,4 @@ time_periods:
     - 33
     - 65
     - 129
-n_sims: 500
+n_sims: 250
