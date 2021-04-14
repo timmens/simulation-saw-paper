@@ -1,6 +1,5 @@
 # dgp 2 to 4
 
-# devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
 library("sawr")
 library("readr")
 library("foreach")

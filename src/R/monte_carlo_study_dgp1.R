@@ -1,6 +1,4 @@
 # dgp 1 (multiple regressors)
-
-# devtools::install_github("https://github.com/timmens/sawr", force = TRUE)
 library("yaml")
 library("sawr")
 library("readr")
