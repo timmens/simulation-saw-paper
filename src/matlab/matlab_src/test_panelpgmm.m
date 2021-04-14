@@ -1,7 +1,5 @@
 clear all;
 
-
-
 N=500; T=6; sigma = 0.3;
 option.nGrid = 40; option.maxLambda = 100; option.minLambda = 0.001; 
 
