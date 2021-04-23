@@ -1,5 +1,6 @@
 # dgp 6 (no-jumps)
 
+library("yaml")
 library("sawr")
 library("readr")
 library("foreach")
@@ -22,8 +23,8 @@ s_est_sd   <- numeric(n_iter)
 mise_sd    <- numeric(n_iter)
 mise_mean  <- numeric(n_iter)
 s_0        <- numeric(n_iter)
-taed_mean   <- numeric(n_iter)  # time average euclidian distance (taed)
-taed_sd     <- numeric(n_iter)
+taed_mean  <- numeric(n_iter)  # time average euclidian distance (taed)
+taed_sd    <- numeric(n_iter)
 
 seed <- 123
 set.seed(seed)
@@ -44,7 +45,7 @@ for (t in time_periods) {
       
       data <- dgp6(t, n, beta = NULL)
       
-      results <- sawr::fit_saw(y=data$Y, X=data$X)
+      results <- sawr::fit_saw_cv(y=data$Y, X=data$X, n_folds=4, n_loops=20)
       estimated_taus <- results$jump_locations[[1]]
       
       s_est_mean_tmp <- sum(!is.na(estimated_taus))
@@ -55,7 +56,7 @@ for (t in time_periods) {
       gamma_true <- beta_to_gamma(true_beta)
       taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
       
-      inner_loop_results <- c(s_est_mean_tmp, mise_tmp)
+      inner_loop_results <- c(s_est_mean_tmp, mise_tmp, taed_tmp, results$)
       inner_loop_results
     }
     
@@ -72,8 +73,8 @@ for (t in time_periods) {
     
     s_0[index]        <- sum(is.na(foreach_result_matrix[1, ])) / n_sims
     
-    taed_mean[index] <- mean(tmp_result_matrix[3, ], na.rm = TRUE)
-    taed_sd[index] <- sd(tmp_result_matrix[3, ], na.rm = TRUE)
+    taed_mean[index] <- mean(foreach_result_matrix[3, ], na.rm = TRUE)
+    taed_sd[index] <- sd(foreach_result_matrix[3, ], na.rm = TRUE)
     
     cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
     
