@@ -28,22 +28,30 @@ DGP <- function(T, N, beta, index) {
 }
 
 
+## Constants
+
+ERROR_SD <- 0.5
+
+
+## Functions
+
 dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
     # dgp1 (multiple regressors)
     
-    beta_tau1 <- make_beta(T, 2) # S_1==2
-    beta_tau2 <- make_beta(T, 3) # S_2==3
+    beta_tau1 <- make_beta(T, 2) # S_1 = 2
+    beta_tau2 <- make_beta(T, 3) # S_2 = 3
     
     beta11 <- rep(beta_tau1$beta, N)
     beta22 <- rep(beta_tau2$beta, N)
     
     alpha <- rnorm(N)
+    alpha <- alpha - sum(alpha) / N
     alpha <- rep(alpha, each = T)
     
-    X1 <- a11 * rnorm(N * T) + a12 * alpha
-    X2 <- a21 * rnorm(N * T) + a22 * alpha
+    X1 <- rnorm(N * T) + a12 * alpha
+    X2 <- rnorm(N * T) + a22 * alpha
     
-    e  <- rnorm(T * N, 0, sd = sqrt(.5))
+    e  <- rnorm(T * N, ERROR_SD**2)
     Y  <- alpha + X1 * beta11 + X2 * beta22 + e
     
     list(
@@ -65,17 +73,14 @@ dgp2 <- function(T, N, beta) {
   tmp   <- make_X(T, N)
   alpha <- tmp$alpha
 
-  e <- matrix(rnorm(2 * N * T), ncol=2)
-  variance = matrix(c(1, 1/2, 1/2, 1), ncol=2)
-  L <- chol(variance)
-  e <- e %*% t(L)
+  e <- matrix(rnorm(N * T, sd=ERROR_SD), ncol=2)
 
-  Z <- alpha / 2 + rnorm(N * T, sd=0.1)
-  X <- 2 * Z + e[,1]
+  Z <- alpha / 2 + rnorm(N * T, sd=0.5)
+  X <- 3 * Z + e
   
   beta <- rep(beta, N)
   
-  Y <- make_Y(X, beta, alpha, 1, e[,2])
+  Y <- make_Y(X, beta, alpha, 1, 0.5 * e)
   
   list(
     Y = matrix(Y, nrow = T),
@@ -88,15 +93,15 @@ dgp2 <- function(T, N, beta) {
 dgp3 <- function(T, N, beta) {
   # dgp3 (heteroscedasticity in the time- and cross-section)
   
-  theta <- runif(N * T, 1, 2)
-  e     <- rnorm(N * T)
+  gamma <- runif(N * T, 1, 2)
+  e     <- rnorm(N * T, ERROR_SD)
   beta  <- rep(beta, N)
   
   tmp   <- make_X(T, N)
   X     <- tmp$X
   alpha <- tmp$alpha
   
-  Y <- make_Y(X, beta, alpha, theta, e)
+  Y <- make_Y(X, beta, alpha, gamma, e)
   
   list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)))
 }
@@ -106,7 +111,7 @@ dgp4 <- function(T, N, beta) {
   # dgp4 (heteroscedasticity in the cross-section and serial correlation)
   
   burn <- 50
-  zeta <- matrix(rnorm((burn + T) * N, 0, sqrt(2)), ncol = N)
+  zeta <- matrix(rnorm((burn + T) * N, 0, ERROR_SD), ncol = N)
   rho  <- runif(N, 0, .5)
   e    <- matrix(NA, nrow = T + burn, ncol = N)
   
@@ -132,7 +137,7 @@ dgp5 <- function(T, N, beta) {
   # dgp5 (heterosc. in the time- and cross-section and time-fixed effect)
   
   gamma <- runif(N * T, 1, 2)
-  e     <- rnorm(N * T)
+  e     <- rnorm(N * T, ERROR_SD)
   beta  <- rep(beta, N)
   
   tmp   <- make_X(T, N)
