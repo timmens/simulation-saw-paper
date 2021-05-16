@@ -30,7 +30,7 @@ DGP <- function(T, N, beta, index) {
 
 ## Constants
 
-ERROR_SD <- 0.5
+ERROR_SD <- sqrt(0.5)
 
 
 ## Functions
@@ -51,7 +51,7 @@ dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
     X1 <- rnorm(N * T) + a12 * alpha
     X2 <- rnorm(N * T) + a22 * alpha
     
-    e  <- rnorm(T * N, ERROR_SD**2)
+    e  <- rnorm(T * N, ERROR_SD)
     Y  <- alpha + X1 * beta11 + X2 * beta22 + e
     
     list(
@@ -67,20 +67,18 @@ dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
 
 dgp2 <- function(T, N, beta) {
   # dgp2 (endogeniety in the regressors)
-  
-  warning("This dgp needs to be checked by dominik.")
 
   tmp   <- make_X(T, N)
   alpha <- tmp$alpha
 
-  e <- matrix(rnorm(N * T, sd=ERROR_SD), ncol=2)
+  e <- rnorm(N * T, sd=ERROR_SD)
 
-  Z <- alpha / 2 + rnorm(N * T, sd=0.5)
+  Z <- alpha / 2 + rnorm(N * T)
   X <- 3 * Z + e
   
   beta <- rep(beta, N)
   
-  Y <- make_Y(X, beta, alpha, 1, 0.5 * e)
+  Y <- make_Y(X, beta, alpha, 1, e)
   
   list(
     Y = matrix(Y, nrow = T),
@@ -93,7 +91,7 @@ dgp2 <- function(T, N, beta) {
 dgp3 <- function(T, N, beta) {
   # dgp3 (heteroscedasticity in the time- and cross-section)
   
-  gamma <- runif(N * T, 1, 2)
+  gamma <- 1 + runif(N * T)
   e     <- rnorm(N * T, ERROR_SD)
   beta  <- rep(beta, N)
   
@@ -110,7 +108,7 @@ dgp3 <- function(T, N, beta) {
 dgp4 <- function(T, N, beta) {
   # dgp4 (heteroscedasticity in the cross-section and serial correlation)
   
-  burn <- 50
+  burn <- 100
   zeta <- matrix(rnorm((burn + T) * N, 0, ERROR_SD), ncol = N)
   rho  <- runif(N, 0, .5)
   e    <- matrix(NA, nrow = T + burn, ncol = N)
@@ -155,7 +153,7 @@ dgp5 <- function(T, N, beta) {
 dgp6 <- function(T, N, beta) {
   # dgp6 (no-jumps; equals dgp4 but without jumps)
   
-  .beta <- rep(2, T)
+  .beta <- rep(3, T)
   dgp4(T, N, .beta)
 }
 
@@ -203,21 +201,21 @@ make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
 make_tau <- function(T, S) {
   tau <- numeric(S)
   for (j in 1:S) {
-    tau[j] <- floor(j * (T - 1) / (S + 1))
+    tau[j] <- floor((T - 1) / 2 ** j) + 1
   }
-  tau
+  tau <- sort(tau)
+  return(tau)
 }
 
 
 make_beta <- function(T, S) {
   if (S == 0) {
-    beta <- rep(-2 / 3, T)
+    beta <- rep(3, T)
     tau  <- list()
-  }
-  else {
+  } else {
     tau      <- make_tau(T, S)
     rep_beta <- diff(c(0, tau, T))
-    betas    <- (3 / 2) * (-1) ^ (1:(S + 1))
+    betas    <- 3 * (-1) ^ (1:(S + 1))
     
     beta     <- rep(betas, times = rep_beta)
   }

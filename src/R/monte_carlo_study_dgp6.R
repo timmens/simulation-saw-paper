@@ -35,7 +35,7 @@ doParallel::registerDoParallel(cl)
 
 for (t in time_periods) {
   
-  true_beta <- rep(2, t)
+  true_beta <- rep(3, t)
   
   for (n in sample_sizes) {
     
@@ -45,10 +45,10 @@ for (t in time_periods) {
       
       data <- dgp6(t, n, beta = NULL)
       
-      results <- sawr::fit_saw_cv(y=data$Y, X=data$X, n_folds=4, n_loops=20)
+      results <- sawr::fit_saw(y=data$Y, X=data$X)
       estimated_taus <- results$jump_locations[[1]]
       
-      s_est_mean_tmp <- sum(!is.na(estimated_taus))
+      s_est_tmp <- sum(!is.na(estimated_taus))
       
       mise_tmp    <- mean((true_beta - results$beta_matrix)^2)
       
@@ -56,7 +56,7 @@ for (t in time_periods) {
       gamma_true <- beta_to_gamma(true_beta)
       taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
       
-      inner_loop_results <- c(s_est_mean_tmp, mise_tmp, taed_tmp, results$)
+      inner_loop_results <- c(s_est_tmp, mise_tmp, taed_tmp)
       inner_loop_results
     }
     

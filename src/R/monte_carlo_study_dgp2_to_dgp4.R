@@ -1,5 +1,6 @@
 # dgp 2 to 4
 
+library("yaml")
 library("sawr")
 library("readr")
 library("foreach")
@@ -17,7 +18,7 @@ n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
 jumps <- c(1, 2, 3)  # S
-dgps <- c(2, 3, 4)
+dgps <- c(3, 4)
 
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps) * length(dgps)
@@ -61,10 +62,10 @@ for (dgp in dgps) {
           
           # apply method
           if (dgp == 2) {
-              # endogenous case, has to deal with instruments
-              results <- sawr::fit_saw(y=data$Y, X=data$X, Z=data$Z)
+            # in endogeneous case use cross validation
+            results <- sawr::fit_saw_cv(y=data$Y, X=data$X, Z=data$Z, n_folds=4, grid_size=25)
           } else {
-              results <- sawr::fit_saw(y=data$Y, X=data$X)
+            results <- sawr::fit_saw(y=data$Y, X=data$X, Z=data$Z)
           }
           
           ## evaluate metrics
@@ -118,6 +119,7 @@ for (dgp in dgps) {
         taed_sd[index] <- sd(tmp_result_matrix[5, ], na.rm = TRUE)
         
         cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
+        cat(s_est_mean[index])
       }
     }
   }

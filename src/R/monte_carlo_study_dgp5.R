@@ -1,5 +1,6 @@
 # dgp 5
 
+library("yaml")
 library("sawr")
 library("readr")
 library("foreach")
@@ -110,7 +111,7 @@ for (t in time_periods) {
       
       time_effect_vec <- tmp_result_matrix[5, ]
       time_effect_mise_mean[index] <- mean(time_effect_vec[!is.infinite(time_effect_vec)], na.rm = TRUE)
-      time_effect_mise_mean[index] <- sd(time_effect_vec[!is.infinite(time_effect_vec)], na.rm = TRUE)
+      time_effect_mise_sd[index] <- sd(time_effect_vec[!is.infinite(time_effect_vec)], na.rm = TRUE)
       
       taed_mean[index] <- mean(tmp_result_matrix[6, ], na.rm = TRUE)
       taed_sd[index] <- sd(tmp_result_matrix[6, ], na.rm = TRUE)

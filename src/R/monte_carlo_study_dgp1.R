@@ -125,8 +125,8 @@ for (t in time_periods) {
     s_01[index]        <- sum(is.na(foreach_result_matrix[5, ])) / n_sims
     s_02[index]        <- sum(is.na(foreach_result_matrix[6, ])) / n_sims
     
-    taed_mean[index] <- mean(foreach_result_matrix[7, ], na.rm = TRUE)
-    taed_sd[index] <- sd(foreach_result_matrix[7, ], na.rm = TRUE)
+    taed_mean[index] <- mean(foreach_result_matrix[8, ], na.rm = TRUE)
+    taed_sd[index] <- sd(foreach_result_matrix[8, ], na.rm = TRUE)
     
     cat(sprintf("%2.2f percent done\n", index / n_iter * 100))
     
