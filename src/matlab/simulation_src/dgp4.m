@@ -1,6 +1,7 @@
 function [Y, X] = dgp4 (T, N, beta)     
-    burn = 50; 
-    zeta = normrnd(0, sqrt(2), [(burn + T), N]); 
+    ERROR_SD = sqrt(0.5);
+    burn = 100; 
+    zeta = normrnd(0, ERROR_SD, [(burn + T), N]); 
     rho  = (rand(N, 1) * .5)'; 
     e    = zeros((T + burn), N);
     

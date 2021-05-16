@@ -5,11 +5,11 @@ function [beta, tau] = make_beta (T, S)
     % returns beta vector and tau (jump position set)
     
     if S == 0
-       beta = repelem(- 2 / 3, T)'; 
+       beta = repelem(3, T)'; 
     else 
        tau      = make_tau(T, S);
        rep_beta = diff([0; tau; T]);
-       betas    = (3 / 2) * (-1).^(1:(S + 1)).';  
+       betas    = 3 * (-1).^(1:(S + 1)).';  
        beta      = repelem(betas, rep_beta);
     end
     

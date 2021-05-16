@@ -5,7 +5,8 @@ function out = make_tau (T, S)
 
     out = zeros(S, 1);
     for j = 1:S
-        out(j) = floor(j * (T - 1) / (S + 1));
+        out(j) = floor((T - 1) / (2^j)) + 1;
     end
+    out = sort(out);
 end
  

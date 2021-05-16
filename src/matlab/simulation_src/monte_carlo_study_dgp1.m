@@ -6,7 +6,7 @@ unix = false;
 
 N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
-nSim = 500;
+nSim = 100;
 nN   = size(N, 2);
 nT   = size(T, 2);
 
@@ -29,7 +29,7 @@ taed_sd = nan(nT * nN, 1);
 
 rng_number = 321;
 rng(rng_number) % set random number generator seed
-parpool(24) % declare (local) parallel cluster with 4 workers 
+parpool(20) % declare (local) parallel cluster with 4 workers 
 
 nIter = nT * nN;
 
