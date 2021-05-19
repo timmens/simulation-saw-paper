@@ -38,8 +38,8 @@ ERROR_SD <- sqrt(0.5)
 dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
     # dgp1 (multiple regressors)
     
-    beta_tau1 <- make_beta(T, 2) # S_1 = 2
-    beta_tau2 <- make_beta(T, 3) # S_2 = 3
+    beta_tau1 <- make_beta(T, 2, dyadic=FALSE) # S_1 = 2
+    beta_tau2 <- make_beta(T, 3, dyadic=FALSE) # S_2 = 3
     
     beta11 <- rep(beta_tau1$beta, N)
     beta22 <- rep(beta_tau2$beta, N)
@@ -198,24 +198,28 @@ make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
 }
 
 
-make_tau <- function(T, S) {
+make_tau <- function(T, S, dyadic=FALSE) {
   tau <- numeric(S)
   for (j in 1:S) {
-    tau[j] <- floor((T - 1) / 2 ** j) + 1
+    if (dyadic) {
+      tau[j] <- floor((T - 1) / 2 ** j) + 1
+    } else {
+      tau[j] <- floor(j * (T - 1) / (S + 1))   
+    }
   }
   tau <- sort(tau)
   return(tau)
 }
 
 
-make_beta <- function(T, S) {
+make_beta <- function(T, S, dyadic=FALSE) {
   if (S == 0) {
-    beta <- rep(3, T)
+    beta <- rep(2, T)
     tau  <- list()
   } else {
-    tau      <- make_tau(T, S)
+    tau <- make_tau(T, S, dyadic)
     rep_beta <- diff(c(0, tau, T))
-    betas    <- 3 * (-1) ^ (1:(S + 1))
+    betas    <- 2 * (-1) ^ (1:(S + 1))
     
     beta     <- rep(betas, times = rep_beta)
   }

@@ -18,7 +18,7 @@ n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
 jumps <- c(1, 2, 3)  # S
-dgps <- c(3, 4)
+dgps <- c(2, 3, 4)
 
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps) * length(dgps)
@@ -63,7 +63,7 @@ for (dgp in dgps) {
           # apply method
           if (dgp == 2) {
             # in endogeneous case use cross validation
-            results <- sawr::fit_saw_cv(y=data$Y, X=data$X, Z=data$Z, n_folds=4, grid_size=25)
+            results <- sawr::fit_saw_iter(y=data$Y, X=data$X, Z=data$Z, max_iter=20, choose_min=FALSE)
           } else {
             results <- sawr::fit_saw(y=data$Y, X=data$X, Z=data$Z)
           }
