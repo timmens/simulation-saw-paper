@@ -6,7 +6,7 @@ unix = false;
 
 N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
-nSim = 100;
+nSim = 500;
 nN   = size(N, 2);
 nT   = size(T, 2);
 

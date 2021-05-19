@@ -3,12 +3,12 @@ tic;
 test = false;
 unix = false;
 
-S    = [1, 2, 3];          
+S    = [1, 2, 3];         
 N    = [30, 60, 120, 300];
 T    = 2 .^ [5, 6, 7] + 1;
 dgp  = [2, 3, 4];
 
-nSim = 100; %500;
+nSim = 500;
 nDGP = size(dgp, 2);
 nS   = size(S, 2);
 nN   = size(N, 2);
