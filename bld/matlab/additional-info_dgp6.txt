@@ -1,4 +1,4 @@
 nsim = 500
 rng = 123
 n.grid = 20
-ellapsed time = 65.6551
+ellapsed time = 37.0657
