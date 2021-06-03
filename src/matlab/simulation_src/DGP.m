@@ -8,7 +8,7 @@ function [Y, X] = DGP (T, N, beta, index)
     elseif index == 3
         [Y, X] = dgp3(T, N, beta);
     elseif index == 4
-        [Y, X] = dgp4(T, N, beta);
+        [Y, X] = dgp4(T, N, beta, []);
     elseif index == 5
         [Y, X] = dgp5(T, N, beta);    
     elseif index == 6

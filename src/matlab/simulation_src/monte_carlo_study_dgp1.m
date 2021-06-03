@@ -22,7 +22,7 @@ mise1_sd = nan(nT * nN, 1);
 mise2_sd = nan(nT * nN, 1);
 hd1_mean = nan(nT * nN, 1);
 hd2_mean = nan(nT * nN, 1);
-hd2_sd = nan(nT * nN, 1);
+hd1_sd = nan(nT * nN, 1);
 hd2_sd = nan(nT * nN, 1);
 taed_mean = nan(nT * nN, 1);
 taed_sd = nan(nT * nN, 1);
@@ -55,7 +55,7 @@ for t = 1:nT
         taed_sd_tmp = 0;
 
         parfor r = 1:nSim
-            [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1(t_tmp, n_tmp, 0.5, 0.5, 0.5, 0.5);
+            [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1(t_tmp, n_tmp);
 
             [tau_est,alpha,~,~,~,~,~] = panelpls(Y, [X1, X2], n_tmp, option, 1);  % 1 for mex
             beta_est  = alpha2beta(alpha, tau_est);
@@ -100,7 +100,7 @@ for t = 1:nT
         mise2_sd(index) = sqrt((mise_sd_tmp2 - mise_mean_tmp2^2 / nSim) / (nSim - 1));
         hd1_mean(index) = hd1_mean_tmp / nSim;
         hd2_mean(index) = hd2_mean_tmp / nSim;
-        hd2_sd(index) = sqrt((hd_sd_tmp1 - hd1_mean_tmp^2 / nSim) / (nSim - 1));
+        hd1_sd(index) = sqrt((hd_sd_tmp1 - hd1_mean_tmp^2 / nSim) / (nSim - 1));
         hd2_sd(index) = sqrt((hd_sd_tmp2 - hd2_mean_tmp^2 / nSim) / (nSim - 1));
         taed_mean(index) = taed_mean_tmp / nSim;
         taed_sd(index) = sqrt((taed_sd_tmp - taed_mean_tmp^2 / nSim) / (nSim - 1));
@@ -113,7 +113,7 @@ end
 
 [cN, cT] = ndgrid(N, T);
 T = cT(:); N = cN(:);
-result_table = table(T, N, s_est_mean, s_est_sd, mise1_mean, mise1_sd, mise2_mean, mise2_sd, hd1_mean, hd2_sd, hd2_mean, hd2_sd, taed_mean, taed_sd); 
+result_table = table(T, N, s_est_mean, s_est_sd, mise1_mean, mise1_sd, mise2_mean, mise2_sd, hd1_mean, hd1_sd, hd2_mean, hd2_sd, taed_mean, taed_sd); 
 
 % getting bld path (matlab is such a *** language)
 current_file_path = matlab.desktop.editor.getActiveFilename;

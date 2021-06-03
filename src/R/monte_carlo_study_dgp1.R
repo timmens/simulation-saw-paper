@@ -15,6 +15,9 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
+n_sims <- 500
+test_run <- TRUE
+
 n_iter <- length(sample_sizes) * length(time_periods)
 
 s_est1_mean <- numeric(n_iter)
@@ -80,7 +83,7 @@ for (t in time_periods) {
       
       # time-average of euclidian distance
       gamma_true <- beta_to_gamma(list(beta1, beta2))
-      taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
+      taed_tmp <- dist_euclidean_time_average(results$gamma_hat, gamma_true)
       
       # return results from parallelized inner loop
       inner_loop_result <- c(

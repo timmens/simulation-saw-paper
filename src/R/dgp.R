@@ -35,21 +35,20 @@ ERROR_SD <- sqrt(0.5)
 
 ## Functions
 
-dgp1 <- function(T, N, a11 = 0.5, a12 = 0.5, a21 = 0.5, a22 = 0.5) {
+dgp1 <- function(T, N) {
     # dgp1 (multiple regressors)
     
-    beta_tau1 <- make_beta(T, 2, dyadic=FALSE) # S_1 = 2
-    beta_tau2 <- make_beta(T, 3, dyadic=FALSE) # S_2 = 3
+    beta_tau1 <- make_beta(T, 2, N, dyadic=FALSE) # S_1 = 2
+    beta_tau2 <- make_beta(T, 3, N, dyadic=FALSE) # S_2 = 3
     
     beta11 <- rep(beta_tau1$beta, N)
     beta22 <- rep(beta_tau2$beta, N)
     
     alpha <- rnorm(N)
-    alpha <- alpha - sum(alpha) / N
     alpha <- rep(alpha, each = T)
     
-    X1 <- rnorm(N * T) + a12 * alpha
-    X2 <- rnorm(N * T) + a22 * alpha
+    X1 <- rnorm(N * T) + alpha / 2
+    X2 <- rnorm(N * T) + alpha / 2
     
     e  <- rnorm(T * N, ERROR_SD)
     Y  <- alpha + X1 * beta11 + X2 * beta22 + e
@@ -91,7 +90,7 @@ dgp2 <- function(T, N, beta) {
 dgp3 <- function(T, N, beta) {
   # dgp3 (heteroscedasticity in the time- and cross-section)
   
-  gamma <- 1 + runif(N * T)
+  sigma_sqrd <- runif(N * T, 1, 3)
   e     <- rnorm(N * T, ERROR_SD)
   beta  <- rep(beta, N)
   
@@ -99,18 +98,18 @@ dgp3 <- function(T, N, beta) {
   X     <- tmp$X
   alpha <- tmp$alpha
   
-  Y <- make_Y(X, beta, alpha, gamma, e)
+  Y <- make_Y(X, beta, alpha, sigma_sqrd, e)
   
   list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)))
 }
 
 
-dgp4 <- function(T, N, beta) {
+dgp4 <- function(T, N, beta, sd=sqrt(3)) {
   # dgp4 (heteroscedasticity in the cross-section and serial correlation)
   
   burn <- 100
-  zeta <- matrix(rnorm((burn + T) * N, 0, ERROR_SD), ncol = N)
-  rho  <- runif(N, 0, .5)
+  zeta <- matrix(rnorm((burn + T) * N, 0, sd), ncol = N)
+  rho  <- runif(N, .25, .75)
   e    <- matrix(NA, nrow = T + burn, ncol = N)
   
   e[1,] <- zeta[1,]
@@ -134,7 +133,7 @@ dgp4 <- function(T, N, beta) {
 dgp5 <- function(T, N, beta) {
   # dgp5 (heterosc. in the time- and cross-section and time-fixed effect)
   
-  gamma <- runif(N * T, 1, 2)
+  sigma_sqrd <- runif(N * T, 1, 2)
   e     <- rnorm(N * T, ERROR_SD)
   beta  <- rep(beta, N)
   
@@ -144,7 +143,7 @@ dgp5 <- function(T, N, beta) {
   
   theta <- make_time_effect(T)
   
-  Y <- make_Y(X, beta, alpha, gamma, e, theta)
+  Y <- make_Y(X, beta, alpha, sigma_sqrd, e, theta)
   
   list(Y = matrix(Y, nrow = T), X = list(matrix(X, nrow = T)), time_effect = theta)
 }
@@ -153,8 +152,8 @@ dgp5 <- function(T, N, beta) {
 dgp6 <- function(T, N, beta) {
   # dgp6 (no-jumps; equals dgp4 but without jumps)
   
-  .beta <- rep(3, T)
-  dgp4(T, N, .beta)
+  .beta <- rep(1, T)
+  dgp4(T, N, .beta, sd=2)
 }
 
 
@@ -166,7 +165,6 @@ dgp6 <- function(T, N, beta) {
 make_X <- function(T, N) {
   xi    <- rnorm(T * N)
   alpha <- rnorm(N)
-  alpha <- alpha - sum(alpha) / N
   alpha <- rep(alpha, each = T)
   
   X     <- 0.5 * alpha + xi
@@ -175,13 +173,13 @@ make_X <- function(T, N) {
 }
 
 
-make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
+make_Y <- function(X, beta, alpha, sigma_sqrd, e, theta=NULL, mu=0) {
   #' Construct labels from parameters and features
   #' 
   #' @param X 1d feature vector of size (T x N)
   #' @param beta 1d slope paramater of size (T x N)
   #' @param alpha 1d individual fixed effects of size (T x N)
-  #' @param gamma 1d variance scaler of size (T x N)
+  #' @param sigma_sqrd 1d variance scaler of size (T x N)
   #' @param e 1d error terms of size (T x N)
   #' @param theta 1d time fixed effects of size (T) or scalar, defaults to NULL
   #' @param mu intercept, defaults to 0
@@ -193,7 +191,7 @@ make_Y <- function(X, beta, alpha, gamma, e, theta=NULL, mu=0) {
     theta <- rep(theta, N)
   }
   
-  y <- mu + X * beta + alpha + theta + sqrt(gamma) * e
+  y <- mu + X * beta + alpha + theta + sqrt(sigma_sqrd) * e
   return(y)
 }
 
@@ -212,14 +210,27 @@ make_tau <- function(T, S, dyadic=FALSE) {
 }
 
 
-make_beta <- function(T, S, dyadic=FALSE) {
+make_beta <- function(T, S, N, dyadic=FALSE) {
+  if (N == 30) {
+    magnitude <- 7
+  } else if (N == 60) {
+    magnitude <- 5
+  } else if (N == 120) {
+    magnitude <- 4
+  } else if (N == 300) {
+    magnitude <- 3
+  } else {
+    stop("N not in correct set.")
+  }
+  magnitude <- magnitude / 3
+
   if (S == 0) {
-    beta <- rep(2, T)
+    beta <- rep(magnitude, T)
     tau  <- list()
   } else {
     tau <- make_tau(T, S, dyadic)
     rep_beta <- diff(c(0, tau, T))
-    betas    <- 2 * (-1) ^ (1:(S + 1))
+    betas    <- magnitude * (-1) ^ (1:(S + 1))
     
     beta     <- rep(betas, times = rep_beta)
   }
@@ -228,8 +239,7 @@ make_beta <- function(T, S, dyadic=FALSE) {
 
 
 make_time_effect <- function(T) {
-  theta <- make_beta(T, floor(T / 10))$beta
-  theta <- theta - sum(theta) / T
+  theta <- make_beta(T, floor(T / 10), 30)$beta
   return(theta)
 }
 
@@ -251,7 +261,6 @@ MDCJ <- function(tau, tau_estimate, S) {
       dist <- dist + min(abs(tau_estimate - tau[j]))
     }
   }
-  
   return(dist)
 }
 
@@ -300,7 +309,7 @@ beta_to_gamma <- function(beta, time_effect = NULL) {
 }
 
 
-dist_euclidian_time_average <- function(gamma_hat, gamma) {
+dist_euclidean_time_average <- function(gamma_hat, gamma) {
   dist <- 0
   for (t in nrow(gamma)) {
     dist <- dist + sum((gamma_hat[t, ] - gamma[t, ])**2)

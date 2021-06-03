@@ -37,10 +37,11 @@ for t = 1:nT
     t_tmp = T(t);
     for s = 1:nS
         s_tmp = S(s);
-        [beta, tau] = make_beta(t_tmp, s_tmp);
         for n = 1:nN
             n_tmp = N(n);
             disp("dgp5: n = " + n_tmp + "; s = " + s_tmp + "; t = " + t_tmp)
+            
+            [beta, tau] = make_beta(t_tmp, s_tmp, n_tmp);
             
             s_est_mean_tmp = 0;
             s_est_sd_tmp = 0;

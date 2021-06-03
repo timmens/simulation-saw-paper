@@ -1,4 +1,4 @@
-function out = make_Y (X, beta, alpha, gamma, e, theta, mu)
+function out = make_Y (X, beta, alpha, sigma_sqrd, e, theta, mu)
     if isempty(mu)
         mu = 0;
     end
@@ -9,5 +9,5 @@ function out = make_Y (X, beta, alpha, gamma, e, theta, mu)
         theta = repmat(theta, N, 1);
     end
     
-	out = mu + X .* beta + alpha + theta + sqrt(gamma) .* e;
+	out = mu + X .* beta + alpha + theta + sqrt(sigma_sqrd) .* e;
 end

@@ -7,3 +7,6 @@ pdfs/
 
 src/matlab/matlab_src/newer_src_version/
 src/matlab/matlab-codes/
+
+bld/matlab/additional_info*
+bld/matlab/additional-info*

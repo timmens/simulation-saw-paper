@@ -10,7 +10,7 @@ nN   = size(N, 2);
 nT   = size(T, 2);
 
 option.nGrid     = 20; 
-option.maxLambda = 100; 
+option.maxLambda = 100;
 option.minLambda = 0.0001;
 
 s_est_mean = nan(nT * nN, 1);

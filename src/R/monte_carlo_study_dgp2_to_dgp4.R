@@ -17,6 +17,9 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
+n_sims <- 100
+test_run <- TRUE
+
 jumps <- c(1, 2, 3)  # S
 dgps <- c(2, 3, 4)
 
@@ -49,9 +52,9 @@ for (dgp in dgps) {
     
     for (s in jumps) { 
       
-      true_beta_tau <- make_beta(t, s)
-      
       for (n in sample_sizes) { 
+        
+        true_beta_tau <- make_beta(t, s, n)
         
         cat(sprintf("dgp = %d; n = %d; s = %d; t = %d\n", dgp, n, s, t))
         
@@ -63,7 +66,7 @@ for (dgp in dgps) {
           # apply method
           if (dgp == 2) {
             # in endogeneous case use cross validation
-            results <- sawr::fit_saw_iter(y=data$Y, X=data$X, Z=data$Z, max_iter=20, choose_min=FALSE)
+            results <- sawr::fit_saw_iter(y=data$Y, X=data$X, Z=data$Z, max_iter=20)
           } else {
             results <- sawr::fit_saw(y=data$Y, X=data$X, Z=data$Z)
           }
@@ -77,7 +80,7 @@ for (dgp in dgps) {
           
           # time-average of euclidian distance
           gamma_true <- beta_to_gamma(true_beta_tau$beta)
-          taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
+          taed_tmp <- dist_euclidean_time_average(results$gamma_hat, gamma_true)
           
           inner_loop_results    <- c(
             s_est_mean_tmp,

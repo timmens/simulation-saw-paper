@@ -17,6 +17,8 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
+test_run = TRUE
+
 jumps <- c(1, 2, 3)  # S
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps)
@@ -33,7 +35,7 @@ hd_sd       <- numeric(n_iter)
 s_0         <- numeric(n_iter)
 time_effect_mise_mean <- numeric(n_iter)
 time_effect_mise_sd <- numeric(n_iter)
-taed_mean   <- numeric(n_iter)  # time average euclidian distance (taed)
+taed_mean   <- numeric(n_iter)  # time average euclidean distance (taed)
 taed_sd     <- numeric(n_iter)
 
 # simulation
@@ -48,9 +50,9 @@ for (t in time_periods) {
   
   for (s in jumps) { 
     
-    true_beta_tau <- make_beta(t, s)
-    
     for (n in sample_sizes) { 
+      
+      true_beta_tau <- make_beta(t, s, n)
       
       cat(sprintf("n = %d; s = %d; t = %d\n", n, s, t))
       
@@ -69,9 +71,9 @@ for (t in time_periods) {
         mise_tmp       <- mean((true_beta_tau$beta - results$beta_matrix)^2)
         hd_mean_tmp    <- dist_hausdorff(true_beta_tau$tau, estimated_taus) / t
         
-        # time-average of euclidian distance
+        # time-average of euclidean distance
         gamma_true <- beta_to_gamma(true_beta_tau$beta, data$time_effect)
-        taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
+        taed_tmp <- dist_euclidean_time_average(results$gamma_hat, gamma_true)
         
         time_effect_tmp <- mean((data$time_effect - results$time_effect)^2)
         

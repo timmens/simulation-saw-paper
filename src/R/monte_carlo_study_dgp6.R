@@ -35,7 +35,7 @@ doParallel::registerDoParallel(cl)
 
 for (t in time_periods) {
   
-  true_beta <- rep(3, t)
+  true_beta <- rep(1, t)
   
   for (n in sample_sizes) {
     
