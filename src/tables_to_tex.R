@@ -48,50 +48,22 @@ data_m <- read_simulations(m_path)
 
 # 2. create data frames
 
-
-## 2.1 table n=30
-
-extract_n30 <- function(data_list) {
-  
-  cols <- c("dgp", "T", "S", "s_est_mean", "s_est_sd", "taed_mean", "taed_sd")
-  
-  dfs <- lapply(
-    data_list, 
-    function(df) df %>% filter(N == 30) %>% select(all_of(cols))
-    )
-  
-  df <- dplyr::bind_rows(dfs)
-  return(df)
-}
-
-
-table_n30 <- dplyr::inner_join(
-  extract_n30(data_R[-1]),
-  extract_n30(data_m[-1]), 
-  by=c("dgp", "T", "S"),
-  suffix=c(".R", ".m")
-  )
-
 ## 2.2 tables n>30
 
 # remove n = 30 case and irrelevant columns from data
 
 # dgp1 
 data_R[["dgp1"]] <- data_R[["dgp1"]] %>% 
-  filter(N != 30) %>% 
   select(-c("s_01", "s_02", "taed_mean", "taed_sd"))
 data_m[["dgp1"]] <- data_m[["dgp1"]] %>% 
-  filter(N != 30) %>% 
   select(-c("taed_mean", "taed_sd"))
  
 # dgp2 - dgp5
 for (dgp in 2:5) {
   data_R[[paste0("dgp", dgp)]] <- data_R[[paste0("dgp", dgp)]] %>% 
-    filter(N != 30) %>% 
     select(-c("dgp", "s_0", "taed_mean", "taed_sd", "mdcj_mean", "mdcj_sd"))
   
   data_m[[paste0("dgp", dgp)]] <- data_m[[paste0("dgp", dgp)]] %>% 
-    filter(N != 30) %>% 
     select(-c("dgp", "s_0", "taed_mean", "taed_sd", "mdcj_mean", "mdcj_sd"))
 }
 
@@ -99,13 +71,24 @@ data_R[["dgp5"]] <- data_R[["dgp5"]] %>% select(
   -c("time_effect_mise_mean", "time_effect_mise_sd")
   )
 
+
+# paper: for the paper we only select all rows corresponding to S = 3 jump loc.
+
+data_R_paper = list()
+data_m_paper = list()
+for (dgp in 2:5) {
+  data_R_paper[[paste0("dgp", dgp)]] <- data_R[[paste0("dgp", dgp)]] %>%
+    filter(S == 3)
+  
+  data_m_paper[[paste0("dgp", dgp)]] <- data_m[[paste0("dgp", dgp)]] %>%
+    filter(S == 3)
+}
+
 # dgp 6
 data_R[["dgp6"]] <- data_R[["dgp6"]] %>% 
-  filter(N != 30) %>% 
   select(-c("dgp", "s_0", "taed_mean", "taed_sd"))
 
 data_m[["dgp6"]] <- data_m[["dgp6"]] %>% 
-  filter(N != 30) %>% 
   select(-c("dgp", "s_0", "taed_mean", "taed_sd"))
 
 
@@ -171,6 +154,11 @@ tables <- lapply(
   function(dgp) joiner(data_R[[dgp]], data_m[[dgp]])
   )
 
+tables_paper <- lapply(
+  paste0("dgp", 2:5),
+  function(dgp) joiner(data_R_paper[[dgp]], data_m_paper[[dgp]])
+  )
+
 
 # table 6
 
@@ -188,10 +176,6 @@ write_table_to_tex <- function(table, fname) {
 }
 
 
-# table n = 30
-
-table_n30 %>% write_table_to_tex("table_n30")
-
 # table 1
 
 table1_mise %>% write_table_to_tex("table1_mise")
@@ -201,8 +185,10 @@ table1_jumps %>% write_table_to_tex("table1_jumps")
 
 for (dgp in 2:5) {
   write_table_to_tex(tables[[dgp - 1]], paste0("table", dgp))
+  write_table_to_tex(tables_paper[[dgp - 1]], paste0("table_paper", dgp))
 }
   
 # table 6
 
 table6 %>% write_table_to_tex("table6")
+

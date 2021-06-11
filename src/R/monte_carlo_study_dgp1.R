@@ -15,9 +15,6 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
-n_sims <- 500
-test_run <- TRUE
-
 n_iter <- length(sample_sizes) * length(time_periods)
 
 s_est1_mean <- numeric(n_iter)

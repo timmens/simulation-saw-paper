@@ -17,9 +17,6 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
-n_sims <- 100
-test_run <- TRUE
-
 jumps <- c(1, 2, 3)  # S
 dgps <- c(2, 3, 4)
 

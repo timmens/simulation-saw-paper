@@ -17,8 +17,6 @@ time_periods <- config$time_periods
 n_sims <- config$n_sims
 if (n_sims != 500) warning("Check n_sims.")
 
-test_run = TRUE
-
 jumps <- c(1, 2, 3)  # S
 
 n_iter <- length(sample_sizes) * length(time_periods) * length(jumps)

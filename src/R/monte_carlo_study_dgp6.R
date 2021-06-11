@@ -54,7 +54,7 @@ for (t in time_periods) {
       
       # time-average of euclidian distance
       gamma_true <- beta_to_gamma(true_beta)
-      taed_tmp <- dist_euclidian_time_average(results$gamma_hat, gamma_true)
+      taed_tmp <- dist_euclidean_time_average(results$gamma_hat, gamma_true)
       
       inner_loop_results <- c(s_est_tmp, mise_tmp, taed_tmp)
       inner_loop_results
