@@ -95,7 +95,7 @@ for i = dgp
                         % Hausdorff mean
                         hd_mean_tmp  = hd_mean_tmp + dist_hausdorff(tau, tau_est) / t_tmp;
                         % Hausdorff sd
-                        hd_sd_tmp  = hd_sd_tmp + dist_hausdorff(tau, tau_est / t_tmp)^2;
+                        hd_sd_tmp  = hd_sd_tmp + (dist_hausdorff(tau, tau_est) / t_tmp)^2;
                     end
 
                     % s_est mean

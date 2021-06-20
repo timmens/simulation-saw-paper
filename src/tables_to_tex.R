@@ -1,8 +1,6 @@
 # read simulation results and transform to latex code
 #
 
-library("magrittr")
-library("kableExtra")
 library("tidyverse")  # aaaaaah why why why is the default to print all these messages
 
 
@@ -26,17 +24,22 @@ read_simulations <- function(path) {
   #' Works for R and matlab simulations
   
   data <- list()
-  data$dgp1 <- readr::read_csv(file.path(path, "simulation_dgp1.csv"))
-  tmp_data <- readr::read_csv(file.path(path, "simulation_dgp2-to-dgp4.csv"))
+  data$dgp1 <- readr::read_csv(file.path(path, "simulation_dgp1.csv")) %>% mutate_at(c("T", "N"), as.integer)
+  tmp_data <- readr::read_csv(file.path(path, "simulation_dgp2-to-dgp4.csv")) %>% mutate_at(c("T", "N", "S"), as.integer) 
   data$dgp2 <- tmp_data %>% filter(dgp == 2)
   data$dgp3 <- tmp_data %>% filter(dgp == 3)
   data$dgp4 <- tmp_data %>% filter(dgp == 4)
-  data$dgp5 <- readr::read_csv(file.path(path, "simulation_dgp5.csv"))
-  data$dgp6 <- readr::read_csv(file.path(path, "simulation_dgp6.csv"))
+  data$dgp5 <- readr::read_csv(file.path(path, "simulation_dgp5.csv")) %>% mutate_at(c("T", "N", "S"), as.integer)
+  data$dgp6 <- readr::read_csv(file.path(path, "simulation_dgp6.csv")) %>% mutate_at(c("T", "N"), as.integer)
   
   data[["dgp5"]] <- data[["dgp5"]] %>% add_column(dgp = 5)
   data[["dgp6"]] <- data[["dgp6"]] %>% add_column(dgp = 6, S = 0)
   
+  for (dgp in 1:6) {
+    data[[paste0("dgp", dgp)]] <- data[[paste0("dgp", dgp)]] %>% round(digits=n_digits)
+  }
+  
+  data[["dgp4"]] <- data[["dgp4"]] %>% round(digits=2)
   
   return(data)
 }
@@ -163,6 +166,32 @@ tables_paper <- lapply(
 # table 6
 
 table6 <- joiner(data_R[["dgp6"]], data_m[["dgp6"]]) %>% select(-c("S"))
+
+
+
+################### move sd estimate in bracket behind mean ####################
+
+put_sd_in_brackets <- function(df, index) {
+  out <- df %>% select(all_of(index))
+  dff = df %>% select(-all_of(index))
+  data = lapply(
+    seq(1, ncol(dff), 2),
+    function(i) do.call(paste0, cbind(dff[i], " (", dff[i+1], ")"))
+    )
+  cnames = colnames(dff)[seq(1, ncol(dff), 2)]
+  data = t(as.data.frame(do.call(rbind, data)))
+  colnames(data) = cnames
+  out = cbind(out, data)
+  rownames(out) = NULL
+  return(out) 
+}
+
+table1_jumps <- put_sd_in_brackets(table1_jumps, c("T", "N"))
+table1_mise <- put_sd_in_brackets(table1_mise, c("T", "N"))
+
+table6 <- put_sd_in_brackets(table6, c("T", "N"))
+
+tables_paper <- lapply(tables_paper, function(df) put_sd_in_brackets(df, c("T", "N", "S")))
 
 
 ############################# tables to latex ##################################
