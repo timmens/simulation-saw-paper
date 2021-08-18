@@ -140,7 +140,7 @@ table1_jumps <- table1_all %>%
       "hd2_mean.m",
       "hd2_sd.m"
     )
-  )
+  ) %>% round(digits=2)
 
 table1 = list("all"=table1_all, "mise"=table1_mise, "jumps"=table1_jumps)
 
