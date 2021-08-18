@@ -50,7 +50,9 @@ dgp1 <- function(T, N) {
     X1 <- rnorm(N * T) + alpha / 2
     X2 <- rnorm(N * T) + alpha / 2
     
+    ERROR_SD = sqrt(2)
     e  <- rnorm(T * N, ERROR_SD)
+    
     Y  <- alpha + X1 * beta11 + X2 * beta22 + e
     
     list(

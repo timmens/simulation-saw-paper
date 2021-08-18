@@ -1,7 +1,7 @@
 function [Y, X1, X2, tau1, tau2, beta1, beta2] = dgp1 (T, N)
     % returns data and outcomes (X1, X2 and Y) for DGP 1
 
-    ERROR_SD = sqrt(0.5);
+    ERROR_SD = sqrt(2);
     
     [beta1, tau1] = make_beta(T, 2, N);
     [beta2, tau2] = make_beta(T, 3, N);
