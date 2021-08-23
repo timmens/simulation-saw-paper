@@ -39,8 +39,6 @@ read_simulations <- function(path) {
     data[[paste0("dgp", dgp)]] <- data[[paste0("dgp", dgp)]] %>% round(digits=n_digits)
   }
   
-  data[["dgp4"]] <- data[["dgp4"]] %>% round(digits=2)
-  
   return(data)
 }
 
@@ -162,6 +160,8 @@ tables_paper <- lapply(
   function(dgp) joiner(data_R_paper[[dgp]], data_m_paper[[dgp]])
   )
 
+tables_paper[[3]] <- tables_paper[[3]] %>% round(digits=2)
+
 
 # table 6
 
@@ -193,6 +193,21 @@ table6 <- put_sd_in_brackets(table6, c("T", "N"))
 
 tables_paper <- lapply(tables_paper, function(df) put_sd_in_brackets(df, c("T", "N", "S")))
 
+tables_supplement <- lapply(tables, function(df) put_sd_in_brackets(df, c("T", "N", "S")))
+
+
+# 3. Supplement
+
+# For supplement move S to first column and sort rows with respect to (S, T, N)
+
+tables_supplement <- lapply(
+  tables_supplement, function(df) df %>% select(S, everything())
+  )
+
+tables_supplement <- lapply(
+  tables_supplement, function(df) df %>% arrange(S, T, N)
+)
+
 
 ############################# tables to latex ##################################
 
@@ -215,6 +230,7 @@ table1_jumps %>% write_table_to_tex("table1_jumps")
 for (dgp in 2:5) {
   write_table_to_tex(tables[[dgp - 1]], paste0("table", dgp))
   write_table_to_tex(tables_paper[[dgp - 1]], paste0("table_paper", dgp))
+  write_table_to_tex(tables_supplement[[dgp - 1]], paste0("table_supplement", dgp))
 }
   
 # table 6
