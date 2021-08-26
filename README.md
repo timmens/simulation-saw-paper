@@ -5,7 +5,7 @@ the paper
 
 ***A Wavelet Method for Panel Models with Jump Discontinuities in the Parameters***
 
-by Bada O., Kneip A., Liebl D., Gualtieri J. and Sickles R. C.
+by Bada O., Kneip A., Liebl D., Mensinger T., Gualtieri J. and Sickles R. C.
 
 
 ## How to Reproduce
